@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JT Water Refilling Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(to bottom, #b2ebf2, #81d4fa);
+    }
+    .login-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      width: 320px;
+      padding: 40px 30px;
+      text-align: center;
+      animation: popUp 0.6s ease forwards;
+    }
+    @keyframes popUp {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Logo */
+    .logo img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      animation: float 2.5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .login-title {
+      font-size: 1.4em;
+      font-weight: 600;
+      color: #0097a7;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #b2ebf2;
+      border-radius: 25px;
+      text-align: center;
+      font-size: 1em;
+      transition: 0.3s;
+    }
+    input:focus {
+      border-color: #00bcd4;
+      outline: none;
+      box-shadow: 0 0 8px #00bcd4;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #00acc1;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #008ba3;
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(0, 188, 212, 0.6);
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .register {
+      font-size: 0.9em;
+      color: gray;
+      margin-top: 15px;
+    }
+    .register a {
+      color: #00acc1;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .register a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo">
+      <img src="JT_LOGO.png" alt="JT Logo" />
+    </div>
+    <div class="login-title">Login</div>
+
+    <input type="text" placeholder="Username" />
+    <input type="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+
+    <div class="register">
+      Don’t have an account?
+      <a href="register.html">Register</a>
+    </div>
+  </div>
+
+<script>
+  function login() {
+    const btn = document.querySelector("button");
+    btn.innerText = "Logging in...";
+    btn.style.background = "#26c6da";
+    setTimeout(() => {
+      // ✅ Redirect instead of alert
+      window.location.href = "customer-dashboard.html";
+    }, 1500);
+  }
+</script>
+<script src="sound.js"></script>
+</body>
+</html>
