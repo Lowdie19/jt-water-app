@@ -125,7 +125,7 @@ body {
   background: #007ACC;
   color: white;
   border-radius: 10px;
-  padding: 16px 20px;
+  padding: 12px 20px;
   font-size: 18px;
   margin-top: 10px;
 }
@@ -133,15 +133,15 @@ body {
 .order-summary-details {
   background: rgba(255,255,255,0.2);
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 12px 14px;
   font-size: 15px;
-  margin-top: 8px;
+  margin-bottom: 0px;
 }
 
 .order-type {
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 15px;
   font-size: 16px;
 }
 
@@ -154,6 +154,7 @@ body {
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
+  margin: 10px;
 }
 
 .order-type button {
@@ -183,14 +184,16 @@ body {
 }
 
 .order-btn {
+  font-size: 15px;
   background: #00d084;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 10px 18px;
+  border-radius: 10px;
+  padding: 14px 20px;
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
+  margin: 10px;
 }
 
 .order-btn:hover {
@@ -313,6 +316,8 @@ body {
   <h1>Water Refilling Station</h1>
 </div>
 
+  <div style="margin-top: 30px;text-align: left; padding-left: 40px;"><h3>Available Containers:</h3></div>
+
 <!-- ===== Gallon Section (HOME content) ===== -->
 <div class="gallon-section">
 
@@ -385,7 +390,7 @@ body {
 
   <!-- Pickup Info (shows only if Pickup is selected) -->
   <div id="pickupInfo" class="order-summary-details">
-    <div><b>Store Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>
+    <div><b>JT water refilling station</b>, 386 Sampaguita St., Brgy. Pansahan, Malolos, Bulacan</div>
     <div><b>Operating Hours:</b> 7:00 AM - 4:00 PM</div>
     <div><b>Date:</b> <span id="todayDate"></span></div>
   </div>
@@ -399,10 +404,11 @@ body {
   <!-- Pickup Name Input -->
 <div id="pickupNameWrapper" class="order-summary-details" style="display:block;margin-top:8px;">
   <label for="pickupName"><b>Customer Name:</b></label>
-  <input type="text" id="pickupName" placeholder="Enter name" style="width:100%; padding:6px; border-radius:6px; border:1px solid #ccc; margin-top:4px;">
+  <input type="text" id="pickupName" placeholder="Enter name" style="width: 97%; padding:8px; border-radius:6px; border:1px solid #ccc; margin-top:8px;">
 </div>
   
     <!-- Order Summary Details -->
+<div class="total" style="font-size: 15px;font-weight: bold;">Items:</div>
   <div id="orderDetails" class="order-summary-details">
     Nothing selected yet.
   </div>
@@ -527,12 +533,16 @@ if (orderType === "deliver") {
 
   detailsHtml += `<div><b>To:</b> ${clientName}</div>`;
   detailsHtml += `<div><b>Address:</b> ${addressText}</div>`;
-} else {
-  // Pickup case
-  const pickupName = document.getElementById("pickupName").value.trim() || "Customer";
-  detailsHtml += `<div><b>To:</b> ${pickupName}</div>`;
-  detailsHtml += `<div><b>Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>`;
-}
+  } else if (orderType === "pickup") {
+    // ✅ Check if pickup name is entered
+    const pickupName = document.getElementById("pickupName").value.trim();
+    if (!pickupName) {
+      alert("Please enter the name of the person picking up the order.");
+      return; // stop execution, modal won't show
+    }
+    detailsHtml += `<div><b>To:</b> ${pickupName}</div>`;
+    detailsHtml += `<div><b>Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>`;
+  }
 
   // Items
   detailsHtml += `<div style="margin-top:10px;"><b>Items:</b></div>`;
