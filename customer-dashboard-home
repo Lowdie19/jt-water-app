@@ -9,21 +9,31 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #dff4ff; 
+  background: linear-gradient(to bottom, #b2ebf2, #81d4fa); 
+  padding: 0; /* Default: no padding on small screens */
+}
+
+/* ✅ Apply padding only on wide screens */
+@media (min-width: 1024px) {
+  body {
+    padding: 0 200px;
+  }
 }
 
 /* ====== Top Bar ====== */
 .top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;                /* ✅ Enables horizontal layout */
+  align-items: center;          /* Vertically centers items */
+  justify-content: center;      /* Horizontally centers all items */
   background: white;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   padding: 10px 0;
-  position: sticky;
-  top: 0;
   z-index: 10;
+  gap: 10px;                    /* Optional spacing between items */
 }
 
 .top-bar img {
@@ -35,7 +45,7 @@ body {
 .top-bar h1 {
   font-family: "Brush Script MT", cursive;
   font-size: 26px;
-  color: #075fa7;
+  color: #0097a7;
   margin: 0;
 }
 
@@ -95,7 +105,7 @@ body {
 }
 
 .quantity button {
-  background-color: #008CFF;
+  background-color: #0097a7;
   color: white;
   border: none;
   font-size: 20px;
@@ -107,7 +117,7 @@ body {
 }
 
 .quantity button:hover {
-  background-color: #006ad1;
+  background-color: #196d76;
 }
 
 .quantity span {
@@ -122,7 +132,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #007ACC;
+  background: #0097a7;
   color: white;
   border-radius: 10px;
   padding: 12px 20px;
@@ -147,7 +157,7 @@ body {
 
 .order-type button {
   background: white;
-  color: #007ACC;
+  color: #0097a7;
   border: none;
   border-radius: 8px;
   padding: 10px 18px;
@@ -218,7 +228,7 @@ body {
 .bottom-nav button {
   background: none;
   border: none;
-  color: #007ACC;
+  color: #0097a7;
   font-size: 14px;
   display: flex;
   flex-direction: column;
@@ -253,22 +263,27 @@ body {
   background-color: rgba(0,0,0,0.4);
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
 /* Modal Content */
 .modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* ✅ Centers the element */
+  width: 80%;
+  height: 50%;
   background-color: white;
-  margin: auto;
   border-radius: 10px;
   padding: 20px;
-  width: 90%;
   max-width: 400px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
 
 .modal h2 {
   margin-top: 0;
-  color: #007ACC;
+  color: #0097a7;
   text-align: center;
 }
 
@@ -620,7 +635,7 @@ document.getElementById('confirmBtn').onclick = () => {
         ">
           <i class="fa-solid fa-check"></i>
         </div>
-        <h2 style="margin:10px 0 5px 0; color:#007ACC;">Order Confirmed!</h2>
+        <h2 style="margin:10px 0 5px 0; color:#0097a7;">Order Confirmed!</h2>
         <p style="font-size:14px; color:#555;">To check or track your order, go to the <b>Order</b> tab.</p>
         <button id="okBtn" style="
           margin-top:15px;
