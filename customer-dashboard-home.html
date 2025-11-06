@@ -16,7 +16,7 @@ body {
 /* ✅ Apply padding only on wide screens */
 @media (min-width: 1024px) {
   body {
-    padding: 0 200px;
+    padding: 0 500px;
   }
 }
 
@@ -225,6 +225,7 @@ body {
   box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
 }
 
+/* Buttons stay the same */
 .bottom-nav button {
   background: none;
   border: none;
@@ -235,6 +236,14 @@ body {
   align-items: center;
   cursor: pointer;
   transition: 0.2s;
+}
+
+/* For wide/desktop screens: center layout around middle button */
+@media (min-width: 768px) {
+  .bottom-nav {
+    justify-content: center; /* center all children as a group */
+    gap: 110px; /* fixed distance between buttons */
+  }
 }
 
 .bottom-nav button.active {
@@ -439,7 +448,7 @@ body {
 
 <!-- ===== Bottom Navigation ====== -->
 <div class="bottom-nav">
-  <button class="active">
+  <button class="active" onclick="location.href='customer-dashboard-home.html'">
     <i class="fa-solid fa-house"></i>
     <span>Home</span>
   </button>
