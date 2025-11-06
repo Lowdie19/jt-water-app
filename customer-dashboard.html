@@ -9,7 +9,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #dff4ff; /* ✅ slightly blue background */
+  background-color: #dff4ff; 
 }
 
 /* ====== Top Bar ====== */
@@ -35,7 +35,7 @@ body {
 .top-bar h1 {
   font-family: "Brush Script MT", cursive;
   font-size: 26px;
-  color: #007ACC;
+  color: #075fa7;
   margin: 0;
 }
 
@@ -45,21 +45,20 @@ body {
   flex-direction: column;
   gap: 20px;
   padding: 16px;
-  margin-bottom: 80px; /* space for bottom nav */
+  margin-bottom: 80px; 
 }
 
 .gallon-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: white; /* ✅ more visible card */
+  background: white; 
   border-radius: 16px;
   padding: 12px 16px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   transition: all 0.25s ease;
 }
 
-/* Hover animation */
 .gallon-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 14px rgba(0, 150, 255, 0.3);
@@ -121,14 +120,66 @@ body {
 /* ====== Total / Order Bar ====== */
 .order-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
   background: #007ACC;
   color: white;
   border-radius: 10px;
-  padding: 12px 20px;
+  padding: 16px 20px;
   font-size: 18px;
   margin-top: 10px;
+}
+
+.order-summary-details {
+  background: rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+.order-type {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-size: 16px;
+}
+
+.order-type button {
+  background: white;
+  color: #007ACC;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.order-type button {
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.order-type button.active {
+  background: #00d084;
+  color: white;
+  transform: scale(1.3); /* slightly enlarges the button */
+}
+
+.address-dropdown {
+  display: none;
+  margin-top: 5px;
+  background: white;
+  color: #333;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.order-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .order-btn {
@@ -185,6 +236,70 @@ body {
   font-size: 20px;
   margin-bottom: 4px;
 }
+
+/* Modal Overlay */
+.modal {
+  display: none; /* hidden by default */
+  position: fixed;
+  z-index: 200;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: white;
+  margin: auto;
+  border-radius: 10px;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.modal h2 {
+  margin-top: 0;
+  color: #007ACC;
+  text-align: center;
+}
+
+.payment-method {
+  margin: 15px 0;
+}
+
+.payment-method select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.modal-buttons button:hover {
+  opacity: 0.9;
+}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -195,12 +310,43 @@ body {
 <!-- ===== Top Bar ===== -->
 <div class="top-bar">
   <img src="JT_LOGO.png" alt="Logo">
-  <h1>Water Refilling</h1>
+  <h1>Water Refilling Station</h1>
 </div>
 
 <!-- ===== Gallon Section (HOME content) ===== -->
 <div class="gallon-section">
 
+<!-- Receipt Modal -->
+<div id="receiptModal" class="modal">
+  <div class="modal-content">
+    <div style="text-align:center;">
+      <img src="JT_LOGO.png" alt="Logo" style="width:50px;height:50px;margin-bottom:10px;">
+      <h2>Confirm Order</h2>
+    </div>
+
+    <div id="receiptDetails" style="margin-top:5px;"></div>
+
+    <!-- Payment Method -->
+    <div class="payment-method">
+      <label for="paymentSelect"><b>Payment Method:</b></label>
+      <select id="paymentSelect">
+        <option value="Cash">Cash</option>
+        <option value="Gcash">Gcash</option>
+      </select>
+    </div>
+
+<!-- Total below payment method -->
+    <div id="modalTotal" style="margin-top:10px;font-weight:bold;"></div>
+
+    <!-- Extra spacing before buttons -->
+    <div style="height:15px;"></div>
+
+    <div class="modal-buttons">
+      <button id="confirmBtn" class="order-btn">Confirm</button>
+      <button id="cancelBtn" class="order-btn" style="background:#ccc;color:#333;">Cancel</button>
+    </div>
+  </div>
+</div>
   <!-- Gallon 1 -->
   <div class="gallon-card">
     <img src="Gallon_1.png" alt="Gallon 1">
@@ -229,15 +375,42 @@ body {
     </div>
   </div>
 
-  <!-- Total & Order Bar -->
-  <div class="order-bar">
+<!-- ===== Total & Order Bar ===== -->
+<div class="order-bar">
+  <!-- Order Type Buttons -->
+  <div class="order-type">
+    <button id="btnPickup" class="active" onclick="setOrderType('pickup')">Pickup</button>
+    <button id="btnDeliver" onclick="setOrderType('deliver')">Deliver</button>
+  </div>
+
+  <!-- Pickup Info (shows only if Pickup is selected) -->
+  <div id="pickupInfo" class="order-summary-details">
+    <div><b>Store Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>
+    <div><b>Operating Hours:</b> 7:00 AM - 4:00 PM</div>
+    <div><b>Date:</b> <span id="todayDate"></span></div>
+  </div>
+
+  <!-- Delivery Address Dropdown -->
+  <select id="addressDropdown" class="address-dropdown">
+    <option>Camille - Torres St., Brgy. Panasahan</option>
+    <option>Bea - 5th Floor, BlueWave Bldg., Pasig</option>
+  </select>
+  
+    <!-- Order Summary Details -->
+  <div id="orderDetails" class="order-summary-details">
+    Nothing selected yet.
+  </div>
+
+  <!-- Total & Place Order -->
+  <div class="order-summary">
     <div class="total">Total: ₱<span id="totalPrice">0</span></div>
     <button class="order-btn" onclick="placeOrder()">Place Order</button>
   </div>
+</div>
 
 </div>
 
-<!-- ===== Bottom Navigation ===== -->
+<!-- ===== Bottom Navigation ====== -->
 <div class="bottom-nav">
   <button class="active">
     <i class="fa-solid fa-house"></i>
@@ -256,11 +429,13 @@ body {
 <script>
 let prices = { g1: 30, g2: 30 };
 let quantities = { g1: 0, g2: 0 };
+let orderType = "pickup";
 
 function changeQty(id, delta) {
   quantities[id] = Math.max(0, quantities[id] + delta);
   document.getElementById(`qty-${id}`).textContent = quantities[id];
   updateTotal();
+  updateOrderDetails();
 }
 
 function updateTotal() {
@@ -268,13 +443,142 @@ function updateTotal() {
   document.getElementById('totalPrice').textContent = total;
 }
 
+function updateOrderDetails() {
+  const container = document.getElementById('orderDetails');
+  container.innerHTML = ''; // clear existing content
+  if (quantities.g1 > 0) {
+    const div1 = document.createElement('div');
+    div1.textContent = `Cylindrical Gallon: ${quantities.g1}`;
+    container.appendChild(div1);
+  }
+  if (quantities.g2 > 0) {
+    const div2 = document.createElement('div');
+    div2.textContent = `Rectangular Container: ${quantities.g2}`;
+    container.appendChild(div2);
+  }
+  if (quantities.g1 === 0 && quantities.g2 === 0) {
+    container.textContent = 'Nothing selected yet.';
+  }
+}
+
+// Show today's date
+document.getElementById("todayDate").textContent = new Date().toLocaleDateString();
+
+// Set order type (Pickup or Deliver)
+function setOrderType(type) {
+  orderType = type;
+  const pickupBtn = document.getElementById("btnPickup");
+  const deliverBtn = document.getElementById("btnDeliver");
+  const pickupInfo = document.getElementById("pickupInfo");
+  const addressDropdown = document.getElementById("addressDropdown");
+
+  if(type === "pickup") {
+    pickupBtn.classList.add("active");
+    deliverBtn.classList.remove("active");
+    pickupInfo.style.display = "block";
+    addressDropdown.style.display = "none"; // hide dropdown
+  } else {
+    deliverBtn.classList.add("active");
+    pickupBtn.classList.remove("active");
+    pickupInfo.style.display = "none";
+    addressDropdown.style.display = "flex"; // show dropdown as flex for modal
+  }
+}
+
 function placeOrder() {
   if (quantities.g1 === 0 && quantities.g2 === 0) {
     alert("Please select at least one item to order.");
     return;
   }
-  alert(`Order placed!\n\nCylindrical Gallon: ${quantities.g1}\nRectangular Container: ${quantities.g2}\nTotal: ₱${(quantities.g1 * prices.g1) + (quantities.g2 * prices.g2)}`);
+
+  const receiptModal = document.getElementById('receiptModal');
+  const receiptDetails = document.getElementById('receiptDetails');
+  const paymentSelect = document.getElementById('paymentSelect');
+
+  // Build receipt content
+  let detailsHtml = '';
+
+  // To: Bold Name of Client and Address
+  if (orderType === "deliver") {
+    const selectedAddress = document.getElementById("addressDropdown").value;
+
+    // Extract name and address
+    const match = selectedAddress.match(/^<b>(.*?)<\/b> - (.*)/);
+    let clientName = '';
+    let addressText = '';
+
+    if (match) {
+      clientName = match[1];
+      addressText = match[2];
+    } else {
+      const parts = selectedAddress.split(' - ');
+      clientName = parts[0];
+      addressText = parts[1] || '';
+    }
+
+    detailsHtml += `<div><b>To:</b> <b>${clientName}</b></div>`;
+    detailsHtml += `<div><b>Address:</b> ${addressText}</div>`;
+  } else {
+    detailsHtml += `<div><b>To:</b> Customer</div>`;
+    detailsHtml += `<div><b>Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>`;
+  }
+
+  // Items
+  detailsHtml += `<div style="margin-top:10px;"><b>Items:</b></div>`;
+  if (quantities.g1 > 0) {
+    detailsHtml += `<div>- Cylindrical Gallon: ${quantities.g1}</div>`;
+  }
+  if (quantities.g2 > 0) {
+    detailsHtml += `<div>- Rectangular Container: ${quantities.g2}</div>`;
+  }
+
+  // Order Type
+  detailsHtml += `<div style="margin-top:10px;"><b>Order type:</b> ${orderType.toUpperCase()}</div>`;
+
+  // Insert content into modal
+  receiptDetails.innerHTML = detailsHtml;
+
+  // Calculate total
+  const totalAmount = (quantities.g1 * prices.g1) + (quantities.g2 * prices.g2);
+
+  // Show modal
+  receiptModal.style.display = 'flex';
+
+  // Update total below payment method dynamically
+  let totalDiv = document.getElementById('modalTotal');
+  if (!totalDiv) {
+    totalDiv = document.createElement('div');
+    totalDiv.id = 'modalTotal';
+    totalDiv.style.marginTop = '10px';
+    totalDiv.style.fontWeight = 'bold';
+    receiptModal.querySelector('.payment-method').after(totalDiv);
+  }
+  totalDiv.textContent = `Total: ₱${totalAmount}`;
+
+  // Confirm button
+  document.getElementById('confirmBtn').onclick = () => {
+    alert(`Order Confirmed!\nPayment Method: ${paymentSelect.value}\nTotal: ₱${totalAmount}`);
+    receiptModal.style.display = 'none';
+    // Reset quantities
+    quantities.g1 = 0;
+    quantities.g2 = 0;
+    updateTotal();
+    updateOrderDetails();
+  };
+
+  // Cancel button
+  document.getElementById('cancelBtn').onclick = () => {
+    receiptModal.style.display = 'none';
+  };
 }
+
+// Close modal if clicking outside
+window.onclick = function(event) {
+  const receiptModal = document.getElementById('receiptModal');
+  if (event.target == receiptModal) {
+    receiptModal.style.display = "none";
+  }
+};
 </script>
 <script src="sound.js"></script>
 </body>
