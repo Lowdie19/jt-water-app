@@ -396,6 +396,12 @@ body {
     <option>Bea - 5th Floor, BlueWave Bldg., Pasig</option>
   </select>
   
+  <!-- Pickup Name Input -->
+<div id="pickupNameWrapper" class="order-summary-details" style="display:block;margin-top:8px;">
+  <label for="pickupName"><b>Customer Name:</b></label>
+  <input type="text" id="pickupName" placeholder="Enter name" style="width:100%; padding:6px; border-radius:6px; border:1px solid #ccc; margin-top:4px;">
+</div>
+  
     <!-- Order Summary Details -->
   <div id="orderDetails" class="order-summary-details">
     Nothing selected yet.
@@ -471,17 +477,20 @@ function setOrderType(type) {
   const deliverBtn = document.getElementById("btnDeliver");
   const pickupInfo = document.getElementById("pickupInfo");
   const addressDropdown = document.getElementById("addressDropdown");
+  const pickupNameWrapper = document.getElementById("pickupNameWrapper");
 
   if(type === "pickup") {
     pickupBtn.classList.add("active");
     deliverBtn.classList.remove("active");
     pickupInfo.style.display = "block";
     addressDropdown.style.display = "none"; // hide dropdown
+    pickupNameWrapper.style.display = "block"; // show input
   } else {
     deliverBtn.classList.add("active");
     pickupBtn.classList.remove("active");
     pickupInfo.style.display = "none";
-    addressDropdown.style.display = "flex"; // show dropdown as flex for modal
+    addressDropdown.style.display = "flex"; // show dropdown
+    pickupNameWrapper.style.display = "none"; // hide input
   }
 }
 
@@ -498,30 +507,32 @@ function placeOrder() {
   // Build receipt content
   let detailsHtml = '';
 
-  // To: Bold Name of Client and Address
-  if (orderType === "deliver") {
-    const selectedAddress = document.getElementById("addressDropdown").value;
+// To: Bold Name of Client and Address
+if (orderType === "deliver") {
+  const selectedAddress = document.getElementById("addressDropdown").value;
 
-    // Extract name and address
-    const match = selectedAddress.match(/^<b>(.*?)<\/b> - (.*)/);
-    let clientName = '';
-    let addressText = '';
+  // Extract name and address
+  let clientName = '';
+  let addressText = '';
+  const match = selectedAddress.match(/^<b>(.*?)<\/b> - (.*)/);
 
-    if (match) {
-      clientName = match[1];
-      addressText = match[2];
-    } else {
-      const parts = selectedAddress.split(' - ');
-      clientName = parts[0];
-      addressText = parts[1] || '';
-    }
-
-    detailsHtml += `<div><b>To:</b> <b>${clientName}</b></div>`;
-    detailsHtml += `<div><b>Address:</b> ${addressText}</div>`;
+  if (match) {
+    clientName = match[1];
+    addressText = match[2];
   } else {
-    detailsHtml += `<div><b>To:</b> Customer</div>`;
-    detailsHtml += `<div><b>Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>`;
+    const parts = selectedAddress.split(' - ');
+    clientName = parts[0];
+    addressText = parts[1] || '';
   }
+
+  detailsHtml += `<div><b>To:</b> ${clientName}</div>`;
+  detailsHtml += `<div><b>Address:</b> ${addressText}</div>`;
+} else {
+  // Pickup case
+  const pickupName = document.getElementById("pickupName").value.trim() || "Customer";
+  detailsHtml += `<div><b>To:</b> ${pickupName}</div>`;
+  detailsHtml += `<div><b>Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>`;
+}
 
   // Items
   detailsHtml += `<div style="margin-top:10px;"><b>Items:</b></div>`;
