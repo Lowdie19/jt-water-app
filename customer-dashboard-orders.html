@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Orders – JT Water Refilling</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #b2ebf2, #81d4fa); 
+  padding: 0;
+}
+
+/* ✅ Apply padding only on wide screens */
+@media (min-width: 1024px) {
+  body {
+    padding: 0 30vw;
+  }
+}
+
+/* Top Bar */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  padding: 12px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.top-bar h1 {
+  font-family: Arial, sans-serif;
+  font-size: 22px;
+  color: #0097a7;
+  margin: 0;
+  font-weight: bold;
+}
+
+/* Body padding */
+.body-content {
+  margin-top: 60px;
+  margin-bottom: 70px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Order Type Buttons */
+.order-filter {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.order-filter button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  background: white;
+  color: #0097a7;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.order-filter button.active {
+  background: #00d084;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Orders list */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Example order card */
+.order-card {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.order-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.order-card .status {
+  font-weight: bold;
+  color: #0097a7;
+}
+
+/* View Receipt button */
+.view-receipt {
+  margin-top: 6px;
+  background: #0097a7;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.view-receipt:hover {
+  background: #008ba3;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #ccc;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: #0097a7;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    justify-content: center;
+    gap: 110px;
+  }
+}
+
+.bottom-nav button.active {
+  color: #00d084;
+}
+
+.bottom-nav i {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.modal-content h2 {
+  text-align: center;
+  color: #0097a7;
+  margin-top: 0;
+}
+
+.modal-content div {
+  margin-bottom: 6px;
+}
+
+.modal-close {
+  background: #00d084;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  align-self: center;
+  margin: 15px 0px 0px;
+}
+
+.modal-close:hover {
+  background: #00b070;
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <h1>Order</h1>
+</div>
+
+<!-- Body Content -->
+<div class="body-content">
+
+  <!-- Pending / Completed Buttons -->
+  <div class="order-filter">
+    <button id="btnPending" class="active"><i class="fa-solid fa-clock"></i> Pending</button>
+    <button id="btnCompleted"><i class="fa-solid fa-check"></i> Completed</button>
+  </div>
+
+  <!-- Orders list -->
+  <div class="order-list" id="orderList">
+    <div class="order-card" data-order-id="001">
+      <div>
+        <div><b>Order #001</b></div>
+        <div>2 Cylindrical Gallons</div>
+        <button class="view-receipt">View Receipt</button>
+      </div>
+      <div class="status">Preparing</div>
+    </div>
+
+    <div class="order-card" data-order-id="002">
+      <div>
+        <div><b>Order #002</b></div>
+        <div>1 Rectangular Container</div>
+        <button class="view-receipt">View Receipt</button>
+      </div>
+      <div class="status">Completed</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="receiptModal" class="modal">
+  <div class="modal-content" id="receiptContent">
+    <div style="text-align:center; margin-bottom:10px;">
+      <img src="JT_LOGO.png" alt="JT Logo" style="width:80px; height:auto;">
+    </div>
+    <h2 style="text-align:center;">Order Receipt</h2>
+    <div id="receiptDetails" style="margin-top:10px; font-size:14px; line-height:1.5;"></div>
+    <button class="modal-close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <button onclick="location.href='customer-dashboard-home.html'">
+    <i class="fa-solid fa-house"></i>
+    <span>Home</span>
+  </button>
+  <button class="active" onclick="location.href='customer-dashboard-orders.html'">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <span>Orders</span>
+  </button>
+  <button onclick="location.href='customer-dashboard-profile.html'">
+    <i class="fa-solid fa-user"></i>
+    <span>Profile</span>
+  </button>
+</div>
+
+<script>
+// Toggle Pending / Completed buttons
+const btnPending = document.getElementById("btnPending");
+const btnCompleted = document.getElementById("btnCompleted");
+const orderList = document.getElementById("orderList");
+
+btnPending.onclick = () => {
+  btnPending.classList.add("active");
+  btnCompleted.classList.remove("active");
+  Array.from(orderList.children).forEach(card => {
+    card.style.display = card.querySelector(".status").textContent === "Pending" ? "flex" : "none";
+  });
+};
+
+btnCompleted.onclick = () => {
+  btnCompleted.classList.add("active");
+  btnPending.classList.remove("active");
+  Array.from(orderList.children).forEach(card => {
+    card.style.display = card.querySelector(".status").textContent === "Completed" ? "flex" : "none";
+  });
+};
+
+// Modal logic
+const receiptModal = document.getElementById('receiptModal');
+const receiptDetails = document.getElementById('receiptDetails');
+
+Array.from(document.getElementsByClassName('view-receipt')).forEach(btn => {
+  btn.onclick = (e) => {
+    const orderCard = e.target.closest('.order-card');
+    const orderId = orderCard.getAttribute('data-order-id');
+    const itemText = orderCard.querySelector('div:nth-child(2)').textContent;
+
+    // Build receipt content
+receiptDetails.innerHTML = `
+  <div style="font-size:16px;">
+    <div><b>Order ID:</b> ${orderId}</div>
+    <div><b>Order type:</b> DELIVERY</div>
+    <div><b>Customer Name:</b> Camille</div>
+    <div><b>Address:</b> Torres St., Brgy. Panasahan</div>
+    <div><b>Items:</b></div>
+    <ul style="margin:10px; padding-left:20px;">
+      <li>${itemText}</li>
+    </ul>
+    <div><b>Payment Method:</b> Cash</div>
+    <div><b>Total:</b> ₱30</div>
+  </div>
+`;
+
+    receiptModal.style.display = 'flex';
+  };
+});
+
+function closeModal() {
+  receiptModal.style.display = 'none';
+}
+
+// Close modal if clicking outside
+window.onclick = function(event) {
+  if (event.target == receiptModal) {
+    closeModal();
+  }
+};
+</script>
+</body>
+</html>
