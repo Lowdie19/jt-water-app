@@ -412,6 +412,38 @@ body {
   to { transform: scale(1); opacity: 1; }
 }
 
+
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0px;
+  
+}
+
+.address-item {
+  color: white;
+  padding: 10px 12px;
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  padding: 12px 14px;
+  font-size: 15px;
+  cursor: pointer;
+  border: 3px solid #0097a7;
+  transition: 0.2s;
+}
+
+.address-item:hover {
+  background-color: #16b2c3;
+}
+
+.address-item.selected {
+  background-color: #00d084;
+  color: white;
+  border: 3px solid #ffffff;
+}
+
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -498,17 +530,26 @@ body {
   </div>
 
   <!-- Pickup Info (shows only if Pickup is selected) -->
+<div style="font-size: 15px;font-weight: bold;">Address:</div>
   <div id="pickupInfo" class="order-summary-details">
     <div><b>JT water refilling station</b>, 386 Sampaguita St., Brgy. Pansahan, Malolos, Bulacan</div>
     <div><b>Operating Hours:</b> 7:00 AM - 4:00 PM</div>
     <div><b>Date:</b> <span id="todayDate"></span></div>
   </div>
 
-  <!-- Delivery Address Dropdown -->
-  <select id="addressDropdown" class="address-dropdown">
-    <option>Camille - Torres St., Brgy. Panasahan</option>
-    <option>Bea - 5th Floor, BlueWave Bldg., Pasig</option>
-  </select>
+<!-- Delivery Address List -->
+<div id="addressList" class="address-list">
+  <div class="address-item" onclick="selectAddress(this)">
+    <span class="address-name"><b>Camille</b></span><br>
+    <span class="address-details">Tawiran St., Brgy. Panasahan</span>
+  </div>
+
+  <div class="address-item" onclick="selectAddress(this)">
+    <span class="address-name"><b>Bea</b></span><br>
+    <span class="address-details">Mabini St., Brgy. Sto. Niño</span>
+  </div>
+
+</div>
   
   <!-- Pickup Name Input -->
 <div id="pickupNameWrapper" class="order-summary-details" style="display:block;margin-top:8px;">
@@ -517,7 +558,7 @@ body {
 </div>
   
     <!-- Order Summary Details -->
-<div class="total" style="font-size: 15px;font-weight: bold;">Items:</div>
+<div style="font-size: 15px;font-weight: bold;">Items:</div>
   <div id="orderDetails" class="order-summary-details">
     Nothing selected yet.
   </div>
@@ -548,24 +589,30 @@ body {
 </div>
 
 <script>
+/* ---------- Globals ---------- */
 let prices = { g1: 30, g2: 30 };
 let quantities = { g1: 0, g2: 0 };
-let orderType = "pickup";
+let orderType = "pickup"; // default
+let selectedAddressValue = "";
 
+/* ---------- Qty / Order details ---------- */
 function changeQty(id, delta) {
-  quantities[id] = Math.max(0, quantities[id] + delta);
-  document.getElementById(`qty-${id}`).textContent = quantities[id];
+  quantities[id] = Math.max(0, (quantities[id] || 0) + delta);
+  const el = document.getElementById(`qty-${id}`);
+  if (el) el.textContent = quantities[id];
   updateTotal();
   updateOrderDetails();
 }
 
 function updateTotal() {
   const total = (quantities.g1 * prices.g1) + (quantities.g2 * prices.g2);
-  document.getElementById('totalPrice').textContent = total;
+  const el = document.getElementById('totalPrice');
+  if (el) el.textContent = total;
 }
 
 function updateOrderDetails() {
   const container = document.getElementById('orderDetails');
+  if (!container) return;
   container.innerHTML = ''; // clear existing content
   if (quantities.g1 > 0) {
     const div1 = document.createElement('div');
@@ -577,93 +624,141 @@ function updateOrderDetails() {
     div2.textContent = `Rectangular Container: ${quantities.g2}`;
     container.appendChild(div2);
   }
-  if (quantities.g1 === 0 && quantities.g2 === 0) {
+  if ((quantities.g1 || 0) === 0 && (quantities.g2 || 0) === 0) {
     container.textContent = 'Nothing selected yet.';
   }
 }
 
-// Show today's date
-document.getElementById("todayDate").textContent = new Date().toLocaleDateString();
+/* ---------- Address selection (replaces dropdown) ---------- */
+function selectAddress(element) {
+  document.querySelectorAll(".address-item").forEach(item => item.classList.remove("selected"));
+  element.classList.add("selected");
 
-// Set order type (Pickup or Deliver)
+  const name = element.querySelector(".address-name")?.textContent.trim() || "";
+  const details = element.querySelector(".address-details")?.textContent.trim() || "";
+  selectedAddressValue = `${name} - ${details}`;
+}
+
+/* ---------- Order type (pickup / delivery) ---------- */
 function setOrderType(type) {
   orderType = type;
   const pickupBtn = document.getElementById("btnPickup");
   const deliverBtn = document.getElementById("btnDeliver");
   const pickupInfo = document.getElementById("pickupInfo");
-  const addressDropdown = document.getElementById("addressDropdown");
+  const addressList = document.getElementById("addressList");
   const pickupNameWrapper = document.getElementById("pickupNameWrapper");
 
-  if(type === "pickup") {
-    pickupBtn.classList.add("active");
-    deliverBtn.classList.remove("active");
-    pickupInfo.style.display = "block";
-    addressDropdown.style.display = "none"; // hide dropdown
-    pickupNameWrapper.style.display = "block"; // show input
+  if (type === "pickup") {
+    if (pickupBtn) pickupBtn.classList.add("active");
+    if (deliverBtn) deliverBtn.classList.remove("active");
+    if (pickupInfo) pickupInfo.style.display = "block";
+    if (addressList) addressList.style.display = "none";
+    if (pickupNameWrapper) pickupNameWrapper.style.display = "block";
   } else {
-    deliverBtn.classList.add("active");
-    pickupBtn.classList.remove("active");
-    pickupInfo.style.display = "none";
-    addressDropdown.style.display = "flex"; // show dropdown
-    pickupNameWrapper.style.display = "none"; // hide input
+    if (deliverBtn) deliverBtn.classList.add("active");
+    if (pickupBtn) pickupBtn.classList.remove("active");
+    if (pickupInfo) pickupInfo.style.display = "none";
+    if (addressList) addressList.style.display = "flex";
+    if (pickupNameWrapper) pickupNameWrapper.style.display = "none";
   }
 }
 
+/* ---------- Modal helper (small alert) ---------- */
+function showModalMessage(title, message, color = "#00d084", icon = "fa-check") {
+  if (document.getElementById('alertModal')) return; // prevent multiples
+  const modal = document.createElement('div');
+  modal.id = 'alertModal';
+  Object.assign(modal.style, {
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+  });
+  modal.innerHTML = `
+    <div style="background:white; padding:26px; border-radius:12px; text-align:center; width:280px; box-shadow:0 6px 20px rgba(0,0,0,0.2);">
+      <div style="width:64px;height:64px;background:${color};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:28px;">
+        <i class="fa-solid ${icon}"></i>
+      </div>
+      <h3 style="color:${color};margin:6px 0;">${title}</h3>
+      <p style="color:#555;font-size:14px;">${message}</p>
+      <button id="alertOkBtn" style="margin-top:12px;background:${color};color:white;border:none;padding:8px 18px;border-radius:8px;font-weight:bold;cursor:pointer;">OK</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('alertOkBtn').onclick = () => modal.remove();
+}
+
+/* ---------- Place order (uses existing #receiptModal and confirm/cancel) ---------- */
 function placeOrder() {
-  if (quantities.g1 === 0 && quantities.g2 === 0) {
+  // validate items
+  if ((quantities.g1 || 0) === 0 && (quantities.g2 || 0) === 0) {
     showModalMessage("Notice", "Please select at least one item to order.", "#f1c40f", "fa-exclamation");
     return;
   }
 
-  const receiptModal = document.getElementById('receiptModal');
-  const receiptDetails = document.getElementById('receiptDetails');
+  // ensure orderType was set; default to pickup if undefined
+  if (!orderType) orderType = "pickup";
 
-  // Get customer info
-  let customerName = "";
-  let addressText = "";
+  // delivery requires address
+  if (orderType === "deliver" || orderType === "delivery") {
+    // support both 'deliver' or 'delivery' naming
+    if (!selectedAddressValue) {
+      showModalMessage("Missing Info", "Please select a delivery address.", "#e74c3c", "fa-xmark");
+      return;
+    }
+  }
 
-  if (orderType === "deliver") {
-    const selectedAddress = document.getElementById("addressDropdown").value;
-    const parts = selectedAddress.split(' - ');
-    customerName = parts[0];
-    addressText = parts[1] || '';
-  } else { // pickup
-    const pickupName = document.getElementById("pickupName").value.trim();
+  // pickup requires name
+  if (orderType === "pickup") {
+    const pickupName = document.getElementById("pickupName")?.value?.trim() || "";
     if (!pickupName) {
       showModalMessage("Missing Info", "Please enter the name of the person picking up the order.", "#e74c3c", "fa-xmark");
       return;
     }
-    customerName = pickupName;
-    addressText = "386 Sampaguita St., Brgy. Pansahan";
   }
 
-  // Payment method (default COD)
-  const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "COD";
+  // safe payment retrieval from select
+  const paymentMethod = document.getElementById("paymentSelect")?.value || "COD";
 
-  // Build items array
+  // build items and total
   const items = [];
   if (quantities.g1 > 0) items.push({ name: "Cylindrical Gallon", qty: quantities.g1 });
   if (quantities.g2 > 0) items.push({ name: "Rectangular Container", qty: quantities.g2 });
-
-  // Calculate total
   const totalAmount = (quantities.g1 * prices.g1) + (quantities.g2 * prices.g2);
 
-  // Build receipt HTML
-  let detailsHtml = `
-    <div style="font-size:16px;">
-      <div><b>Customer Name:</b> ${customerName}</div>
-      <div><b>Address:</b> ${addressText}</div>
-      <div style="margin-top:10px;"><b>Items:</b></div>
-      ${items.map(i => `<div>- ${i.name}: ${i.qty}</div>`).join('')}
-      <div style="margin-top:10px;"><b>Order type:</b> ${orderType.toUpperCase()}</div>
-      <div><b>Payment Method:</b> ${paymentMethod}</div>
-      <div><b>Total:</b> ₱${totalAmount}</div>
-    </div>
-  `;
+  // customer info
+  let customerName = "";
+  let addressText = "";
+  if (orderType === "pickup") {
+    customerName = document.getElementById("pickupName").value.trim();
+    addressText = "386 Sampaguita St., Brgy. Pansahan";
+  } else {
+    // selectedAddressValue is like "Name - Address" per your data-value
+    const parts = selectedAddressValue.split(' - ');
+    customerName = parts[0] || "";
+    addressText = parts.slice(1).join(' - ') || selectedAddressValue;
+  }
+
+  // populate receipt modal (your existing modal)
+  const receiptModal = document.getElementById('receiptModal');
+  const receiptDetails = document.getElementById('receiptDetails');
+  if (!receiptModal || !receiptDetails) {
+    showModalMessage("Error", "Receipt modal not found in DOM.", "#e74c3c", "fa-xmark");
+    return;
+  }
+
+let detailsHtml = `
+  <div style="font-size:16px; text-align:left; line-height:1.2;">
+    <div style="margin-bottom:6px;"><b>Customer Name:</b> ${customerName}</div>
+    <div style="margin-bottom:6px;"><b>Address:</b> ${addressText}</div>
+    <div style="margin:10px 0 6px;"><b>Items:</b></div>
+    ${items.map(i => `<div style="margin-left:10px; margin-bottom:4px;">• ${i.name}: ${i.qty}</div>`).join('')}
+    <div style="margin:10px 0 6px;"><b>Order Type:</b> ${orderType.toUpperCase()}</div>
+    <div style="margin-top:8px;"><b>Total:</b> ₱${totalAmount}</div>
+  </div>
+`;
   receiptDetails.innerHTML = detailsHtml;
   receiptModal.style.display = 'flex';
 
-  // Save order to localStorage
+  // Save order to localStorage (preserve your structure)
   const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
   const newOrder = {
     id: 'ORD' + (existingOrders.length + 1).toString().padStart(3, '0'),
@@ -674,130 +769,83 @@ function placeOrder() {
     orderType: orderType.toUpperCase(),
     paymentMethod,
     total: totalAmount,
-    status: orderType === "deliver" ? "Preparing" : "Completed"
+    status: (orderType === "deliver" || orderType === "delivery") ? "Preparing" : "Completed"
   };
   existingOrders.push(newOrder);
   localStorage.setItem('orders', JSON.stringify(existingOrders));
 
-  // Success modal logic
+  // Make sure confirm/cancel handlers attached **only once**
+  const confirmBtn = document.getElementById('confirmBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+
+  // remove previous to avoid duplicate handlers (defensive)
+  if (confirmBtn) { confirmBtn.replaceWith(confirmBtn.cloneNode(true)); }
+  if (cancelBtn) { cancelBtn.replaceWith(cancelBtn.cloneNode(true)); }
+
+  // re-query
+  const confirmBtn2 = document.getElementById('confirmBtn');
+  const cancelBtn2 = document.getElementById('cancelBtn');
+
+  // on confirm -> close receipt, show success, reset counts
+  confirmBtn2.addEventListener('click', function () {
+    receiptModal.style.display = 'none';
+    showSuccessModal();
+  });
+
+  // on cancel -> just close receipt
+  cancelBtn2.addEventListener('click', function () {
+    receiptModal.style.display = 'none';
+  });
+}
+
+/* ---------- Success modal (create once) ---------- */
+function showSuccessModal() {
   let successModal = document.getElementById('successModal');
   if (!successModal) {
     successModal = document.createElement('div');
     successModal.id = 'successModal';
+    successModal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:9999;padding:16px;';
     successModal.innerHTML = `
-      <div class="success-box">
-        <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+      <div class="success-box" style="background:white;border-radius:15px;text-align:center;width:90%;max-width:320px;box-shadow:0 0 15px rgba(0,0,0,0.3);padding:24px 20px;">
+        <div class="success-icon" style="width:70px;height:70px;background:#00d084;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px auto;font-size:36px;">
+          <i class="fa-solid fa-check"></i>
+        </div>
         <h2 style="margin:10px 0 5px 0; color:#0097a7;">Order Confirmed!</h2>
         <p style="font-size:14px; color:#555;">To check or track your order, go to the <b>Orders</b> tab.</p>
-        <button id="okBtn">OK</button>
+        <button id="okBtn" style="margin-top:15px;background:#00d084;color:white;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:bold;">OK</button>
       </div>
     `;
     document.body.appendChild(successModal);
-
-    document.getElementById('okBtn').onclick = () => {
+    document.getElementById('okBtn').addEventListener('click', function () {
       successModal.style.display = 'none';
+      // reset quantities
       quantities.g1 = 0;
       quantities.g2 = 0;
-      document.getElementById('qty-g1').textContent = '0';
-      document.getElementById('qty-g2').textContent = '0';
+      if (document.getElementById('qty-g1')) document.getElementById('qty-g1').textContent = '0';
+      if (document.getElementById('qty-g2')) document.getElementById('qty-g2').textContent = '0';
       updateOrderDetails();
       updateTotal();
-    };
+    });
   }
-
-  // Confirm button closes receipt and shows success
-  document.getElementById('confirmBtn').onclick = () => {
-    receiptModal.style.display = 'none';
-    successModal.style.display = 'flex';
-  };
-
-  // Cancel button just closes receipt
-  document.getElementById('cancelBtn').onclick = () => {
-    receiptModal.style.display = 'none';
-  };
+  successModal.style.display = 'flex';
 }
 
-
-
-// Close modal if clicking outside
-window.onclick = function(event) {
+/* ---------- Close receipt modal when clicking outside ---------- */
+window.addEventListener('click', function (event) {
   const receiptModal = document.getElementById('receiptModal');
-  if (event.target == receiptModal) {
-    receiptModal.style.display = "none";
+  if (!receiptModal) return;
+  if (event.target === receiptModal) {
+    receiptModal.style.display = 'none';
   }
-};
+});
 
-function showModalMessage(title, message, color = "#00d084", icon = "fa-check") {
-  // Remove existing modal if any
-  const existing = document.getElementById('alertModal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'alertModal';
-  modal.style.position = 'fixed';
-  modal.style.top = '0';
-  modal.style.left = '0';
-  modal.style.width = '100%';
-  modal.style.height = '100%';
-  modal.style.background = 'rgba(0,0,0,0.6)';
-  modal.style.display = 'flex';
-  modal.style.alignItems = 'center';
-  modal.style.justifyContent = 'center';
-  modal.style.zIndex = '9999';
-
-  modal.innerHTML = `
-    <div style="
-      background:white;
-      padding:30px;
-      border-radius:15px;
-      text-align:center;
-      width:280px;
-      box-shadow:0 0 15px rgba(0,0,0,0.3);
-      animation: popIn 0.2s ease;
-    ">
-      <div style="
-        width:70px;
-        height:70px;
-        background:${color};
-        color:white;
-        border-radius:50%;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        margin:0 auto 10px auto;
-        font-size:36px;
-      ">
-        <i class="fa-solid ${icon}"></i>
-      </div>
-      <h2 style="margin:10px 0 5px 0; color:${color};">${title}</h2>
-      <p style="font-size:14px; color:#555;">${message}</p>
-      <button id="alertOkBtn" style="
-        margin-top:15px;
-        background:${color};
-        color:white;
-        border:none;
-        padding:8px 20px;
-        border-radius:8px;
-        cursor:pointer;
-        font-weight:bold;
-      ">OK</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  document.getElementById('alertOkBtn').onclick = () => modal.remove();
-}
-
-const newOrder = {
-  id: orderId,
-  orderType: orderType.toUpperCase(),
-  customerName: clientNameOrPickup, // depends on delivery/pickup
-  address: addressText,
-  items: itemsArray, // e.g., [{name:"Rectangular Container", qty:2}]
-  paymentMethod: selectedPaymentMethod, // <-- save this
-  total: totalAmount,
-  status: 'Preparing' // or Pending
-};
+/* ---------- Initialization ---------- */
+document.addEventListener('DOMContentLoaded', function () {
+  // ensure UI shows pickup by default
+  setOrderType('pickup');
+  updateOrderDetails();
+  updateTotal();
+});
 </script>
 <script src="sound.js"></script>
 </body>
