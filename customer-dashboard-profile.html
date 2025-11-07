@@ -75,6 +75,16 @@ body {
   box-shadow: 0 3px 10px rgba(0,0,0,0.25);
 }
 
+.profile-header img,
+#editProfileModal img {
+  max-width: 100%;
+  height: auto;
+}
+
+#editProfileModal input {
+  width: 100%;
+}
+
 .profile-info {
   display: flex;
   flex-direction: column;
@@ -83,7 +93,7 @@ body {
 
 .profile-info h2 {
   margin: 0;
-  font-size: 29px;
+  font-size: 25px;
   font-weight: bold;
   color: white;
   text-shadow: 0 1px 2px #0097a7;
@@ -176,12 +186,82 @@ body {
 .bottom-nav button.active { color: #00d084; }
 
 .bottom-nav i { font-size: 20px; margin-bottom: 4px; }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.modal-content {
+  box-sizing: border-box;
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-x: hidden;
+}
+
+.modal-close {
+  background: #00d084;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.modal-close:hover { background: #00b070; }
+
+/* optional, put in <style> to unify input styles */
+#editProfileModal input {
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+#editProfileModal input:focus {
+  outline: none;
+  border-color: #0097a7;
+  box-shadow: 0 0 4px #0097a7;
+}
+
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <h1>Profile</h1>
+  <h1>My Profile</h1>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal">
+  <div class="modal-content">
+    <h2 style="text-align:center;">Logout</h2>
+    <p style="text-align:center; margin-top:10px;">Are you sure you want to log out?</p>
+    <div style="display:flex; justify-content:center; gap:16px; margin-top:20px;">
+      <button class="modal-close" onclick="confirmLogout()">Yes</button>
+      <button class="modal-close" onclick="closeLogoutModal()">No</button>
+    </div>
+  </div>
 </div>
 
 <div class="body-content">
@@ -197,8 +277,8 @@ body {
 
   <!-- Profile Details -->
   <div class="profile-section">
-    <div class="profile-item">
-      <label>Profile</label>
+    <div class="profile-item" onclick="openEditProfileModal()" style="cursor:pointer;">
+      <label>Edit Profile</label>
       <span>View or edit your personal information.</span>
     </div>
 
@@ -237,13 +317,130 @@ body {
   </button>
 </div>
 
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal">
+  <div class="modal-content" style="align-items:center; text-align:center;">
+    <h2 style="color:#0097a7; font-size:22px; margin-bottom:12px;">Edit Profile</h2>
+    
+<!-- Profile Picture -->
+<div style="position: relative; display: inline-block; margin-bottom: 12px;">
+  <img id="editProfilePic" src="Profile.jpg" alt="Profile Picture" 
+       style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid #0097a7;">
+  
+  <!-- Camera Icon -->
+  <label for="profilePicInput" 
+         style="position: absolute; bottom: 0; right: 0; background:#00d084; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white;">
+    <i class="fa-solid fa-camera" style="color:white; font-size:12px;"></i>
+  </label>
+
+  <!-- Hidden file input -->
+  <input type="file" id="profilePicInput" accept="image/*" style="display:none;">
+</div>
+
+    <!-- Name -->
+    <label style="color:#0097a7; font-weight:bold; font-size:16px;">Name:</label>
+    <input type="text" id="editName" style="width:80%; padding:6px; border-radius:6px; border:1px solid #ccc; font-size:14px; color:#555; margin-bottom:10px; text-align:center;">
+
+    <!-- Phone -->
+    <label style="color:#0097a7; font-weight:bold; font-size:16px;">Phone:</label>
+    <input type="text" id="editPhone" style="width:80%; padding:6px; border-radius:6px; border:1px solid #ccc; font-size:14px; color:#555; margin-bottom:10px; text-align:center;">
+
+<!-- Address -->
+<label style="color:#0097a7; font-weight:bold; font-size:16px;">Address:</label>
+<textarea id="editAddress" 
+          style="width:80%; border-radius:6px; border:1px solid #ccc; font-size:14px; color:#555; padding:6px; text-align:center; resize:none; overflow:hidden; margin-bottom:30px; font-family:Arial, sans-serif;"
+          rows="1"
+          placeholder="Enter your address"></textarea>
+
+    <div style="display:flex; justify-content:center; gap:12px;">
+      <button class="modal-close" onclick="saveProfileChanges()" style="background:#00d084; color:white; font-weight:bold; font-size:14px; padding:8px 20px;">Save</button>
+      <button class="modal-close" onclick="closeEditProfileModal()" style="background:#00d084; color:white; font-weight:bold; font-size:14px; padding:8px 20px;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+
 <script>
 function logout() {
-  if (confirm("Are you sure you want to log out?")) {
-    // Example: redirect to login page
-    window.location.href = "login.html";
-  }
+  document.getElementById('logoutModal').style.display = 'flex';
 }
+
+function closeLogoutModal() {
+  document.getElementById('logoutModal').style.display = 'none';
+}
+
+function confirmLogout() {
+  window.location.href = "login.html";
+}
+
+// Close modal if user clicks outside content
+window.onclick = function(event) {
+  const modal = document.getElementById('logoutModal');
+  if (event.target === modal) closeLogoutModal();
+};
+
+// Open modal and populate current values
+function openEditProfileModal() {
+  const name = document.querySelector('.profile-info h2').innerText;
+  const phone = document.querySelector('.profile-item:nth-child(2) span').innerText;
+  const address = document.querySelector('.profile-item:nth-child(4) span').innerText;
+
+  document.getElementById('editName').value = name;
+  document.getElementById('editPhone').value = phone;
+  document.getElementById('editAddress').value = address;
+
+  document.getElementById('editProfileModal').style.display = 'flex';
+}
+
+// Close modal
+function closeEditProfileModal() {
+  document.getElementById('editProfileModal').style.display = 'none';
+}
+
+// Save changes
+function saveProfileChanges() {
+  const newName = document.getElementById('editName').value;
+  const newPhone = document.getElementById('editPhone').value;
+  const newAddress = document.getElementById('editAddress').value;
+
+  // Update profile info on page
+  document.querySelector('.profile-info h2').innerText = newName;
+  document.querySelector('.profile-info p').innerText = newAddress; // ✅ updated under name
+  document.querySelector('.profile-item:nth-child(2) span').innerText = newPhone;
+  document.querySelector('.profile-item:nth-child(4) span').innerText = newAddress; // ✅ updated in Delivery Address section
+
+  // Update profile picture if selected
+  const picInput = document.getElementById('profilePicInput');
+  const file = picInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.querySelector('.profile-header img').src = e.target.result;
+      document.getElementById('editProfilePic').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  closeEditProfileModal();
+}
+
+// Close modal if clicking outside content
+window.onclick = function(event) {
+  const modal = document.getElementById('editProfileModal');
+  if (event.target === modal) closeEditProfileModal();
+
+  const logoutModal = document.getElementById('logoutModal');
+  if (logoutModal && event.target === logoutModal) closeLogoutModal();
+};
+
+const addressBox = document.getElementById('editAddress');
+
+// Adjust height automatically
+addressBox.addEventListener('input', function() {
+  this.style.height = 'auto'; // reset height
+  this.style.height = this.scrollHeight + 'px'; // set height to scrollHeight
+});
 </script>
 
 </body>
