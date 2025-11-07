@@ -444,7 +444,7 @@ body {
     <div class="payment-method">
       <label for="paymentSelect"><b>Payment Method:</b></label>
       <select id="paymentSelect">
-        <option value="Cash">Cash</option>
+        <option value="COD">COD</option>
         <option value="Gcash">Gcash</option>
       </select>
     </div>
@@ -618,53 +618,68 @@ function placeOrder() {
   const receiptModal = document.getElementById('receiptModal');
   const receiptDetails = document.getElementById('receiptDetails');
 
-  // Build receipt content
-  let detailsHtml = '';
+  // Get customer info
+  let customerName = "";
+  let addressText = "";
 
   if (orderType === "deliver") {
     const selectedAddress = document.getElementById("addressDropdown").value;
     const parts = selectedAddress.split(' - ');
-    const clientName = parts[0];
-    const addressText = parts[1] || '';
-
-    detailsHtml += `<div><b>Customer Name:</b> ${clientName}</div>`;
-    detailsHtml += `<div><b>Address:</b> ${addressText}</div>`;
-  } else if (orderType === "pickup") {
+    customerName = parts[0];
+    addressText = parts[1] || '';
+  } else { // pickup
     const pickupName = document.getElementById("pickupName").value.trim();
     if (!pickupName) {
       showModalMessage("Missing Info", "Please enter the name of the person picking up the order.", "#e74c3c", "fa-xmark");
       return;
     }
-    detailsHtml += `<div><b>Customer Name:</b> ${pickupName}</div>`;
-    detailsHtml += `<div><b>Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>`;
+    customerName = pickupName;
+    addressText = "386 Sampaguita St., Brgy. Pansahan";
   }
 
-  // Add selected items
-  detailsHtml += `<div style="margin-top:10px;"><b>Items:</b></div>`;
-  if (quantities.g1 > 0) detailsHtml += `<div>- Cylindrical Gallon: ${quantities.g1}</div>`;
-  if (quantities.g2 > 0) detailsHtml += `<div>- Rectangular Container: ${quantities.g2}</div>`;
-  detailsHtml += `<div style="margin-top:10px;"><b>Order type:</b> ${orderType.toUpperCase()}</div>`;
+  // Payment method (default COD)
+  const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "COD";
 
-  receiptDetails.innerHTML = detailsHtml;
+  // Build items array
+  const items = [];
+  if (quantities.g1 > 0) items.push({ name: "Cylindrical Gallon", qty: quantities.g1 });
+  if (quantities.g2 > 0) items.push({ name: "Rectangular Container", qty: quantities.g2 });
 
   // Calculate total
   const totalAmount = (quantities.g1 * prices.g1) + (quantities.g2 * prices.g2);
 
-  // Show receipt modal
+  // Build receipt HTML
+  let detailsHtml = `
+    <div style="font-size:16px;">
+      <div><b>Customer Name:</b> ${customerName}</div>
+      <div><b>Address:</b> ${addressText}</div>
+      <div style="margin-top:10px;"><b>Items:</b></div>
+      ${items.map(i => `<div>- ${i.name}: ${i.qty}</div>`).join('')}
+      <div style="margin-top:10px;"><b>Order type:</b> ${orderType.toUpperCase()}</div>
+      <div><b>Payment Method:</b> ${paymentMethod}</div>
+      <div><b>Total:</b> ₱${totalAmount}</div>
+    </div>
+  `;
+  receiptDetails.innerHTML = detailsHtml;
   receiptModal.style.display = 'flex';
 
-  // Update total below payment method dynamically
-  let totalDiv = document.getElementById('modalTotal');
-  if (!totalDiv) {
-    totalDiv = document.createElement('div');
-    totalDiv.id = 'modalTotal';
-    totalDiv.style.marginTop = '10px';
-    totalDiv.style.fontWeight = 'bold';
-    receiptModal.querySelector('.payment-method').after(totalDiv);
-  }
-  totalDiv.textContent = `Total: ₱${totalAmount}`;
+  // Save order to localStorage
+  const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+  const newOrder = {
+    id: 'ORD' + (existingOrders.length + 1).toString().padStart(3, '0'),
+    date: new Date().toLocaleDateString(),
+    customerName,
+    address: addressText,
+    items,
+    orderType: orderType.toUpperCase(),
+    paymentMethod,
+    total: totalAmount,
+    status: orderType === "deliver" ? "Preparing" : "Completed"
+  };
+  existingOrders.push(newOrder);
+  localStorage.setItem('orders', JSON.stringify(existingOrders));
 
-  // ✅ SUCCESS MODAL (created once)
+  // Success modal logic
   let successModal = document.getElementById('successModal');
   if (!successModal) {
     successModal = document.createElement('div');
@@ -679,31 +694,24 @@ function placeOrder() {
     `;
     document.body.appendChild(successModal);
 
-    // ✅ Attach OK button once
     document.getElementById('okBtn').onclick = () => {
       successModal.style.display = 'none';
-
-      // Reset quantities
       quantities.g1 = 0;
       quantities.g2 = 0;
-
-      // Reset visible numbers
       document.getElementById('qty-g1').textContent = '0';
       document.getElementById('qty-g2').textContent = '0';
-
-      // Update order summary and total
       updateOrderDetails();
       updateTotal();
     };
   }
 
-  // Confirm button: close receipt modal, show success modal
+  // Confirm button closes receipt and shows success
   document.getElementById('confirmBtn').onclick = () => {
     receiptModal.style.display = 'none';
     successModal.style.display = 'flex';
   };
 
-  // Cancel button: just close receipt modal
+  // Cancel button just closes receipt
   document.getElementById('cancelBtn').onclick = () => {
     receiptModal.style.display = 'none';
   };
@@ -779,6 +787,17 @@ function showModalMessage(title, message, color = "#00d084", icon = "fa-check") 
 
   document.getElementById('alertOkBtn').onclick = () => modal.remove();
 }
+
+const newOrder = {
+  id: orderId,
+  orderType: orderType.toUpperCase(),
+  customerName: clientNameOrPickup, // depends on delivery/pickup
+  address: addressText,
+  items: itemsArray, // e.g., [{name:"Rectangular Container", qty:2}]
+  paymentMethod: selectedPaymentMethod, // <-- save this
+  total: totalAmount,
+  status: 'Preparing' // or Pending
+};
 </script>
 <script src="sound.js"></script>
 </body>
