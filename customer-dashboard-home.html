@@ -16,7 +16,7 @@ body {
 /* ✅ Apply padding only on wide screens */
 @media (min-width: 1024px) {
   body {
-    padding: 0 500px;
+    padding: 0 30vw;
   }
 }
 
@@ -259,35 +259,47 @@ body {
   margin-bottom: 4px;
 }
 
-/* Modal Overlay */
+/* ===== Modal Overlay (Full Screen Centered) ===== */
 .modal {
-  display: none; /* hidden by default */
   position: fixed;
-  z-index: 200;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  inset: 0; /* shorthand for top/left/right/bottom: 0 */
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  z-index: 200;
+  padding: 16px;
+  overflow-y: auto; /* allows scroll if content is taller than screen */
 }
 
-/* Modal Content */
+/* ===== Responsive Modal Box ===== */
 .modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* ✅ Centers the element */
-  width: 80%;
-  height: 400px;
-  background-color: white;
-  border-radius: 10px;
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
   padding: 20px;
-  max-width: 400px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: modalFadeIn 0.2s ease;
+}
+
+/* ===== Small Screen Adjustments ===== */
+@media (max-width: 480px) {
+  .modal-content {
+    width: 92%;
+    padding: 16px;
+  }
+}
+
+/* ===== Optional Animation ===== */
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .modal h2 {
@@ -327,6 +339,79 @@ body {
 .modal-buttons button:hover {
   opacity: 0.9;
 }
+
+/* ===== SUCCESS MODAL (FULLY RESPONSIVE & CENTERED) ===== */
+#successModal {
+  position: fixed;
+  inset: 0; /* top:0; right:0; bottom:0; left:0 */
+  background: rgba(0, 0, 0, 0.6);
+  display: none; /* hidden by default */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 16px;
+  overflow-y: auto; /* allows scroll on very small screens */
+}
+
+/* ===== SUCCESS BOX ===== */
+#successModal .success-box {
+  background: white;
+  border-radius: 15px;
+  text-align: center;
+  width: 90%;
+  max-width: 320px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  padding: 24px 20px;
+  animation: modalSlideUp 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== ICON ===== */
+#successModal .success-icon {
+  width: 70px;
+  height: 70px;
+  background: #00d084;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px auto;
+  font-size: 36px;
+  animation: popIn 0.3s ease;
+}
+
+/* ===== BUTTON ===== */
+#successModal button {
+  margin-top: 15px;
+  background: #00d084;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+#successModal button:hover {
+  background: #00b070;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -532,61 +617,40 @@ function placeOrder() {
 
   const receiptModal = document.getElementById('receiptModal');
   const receiptDetails = document.getElementById('receiptDetails');
-  const paymentSelect = document.getElementById('paymentSelect');
 
   // Build receipt content
   let detailsHtml = '';
 
-// To: Bold Name of Client and Address
-if (orderType === "deliver") {
-  const selectedAddress = document.getElementById("addressDropdown").value;
-
-  // Extract name and address
-  let clientName = '';
-  let addressText = '';
-  const match = selectedAddress.match(/^<b>(.*?)<\/b> - (.*)/);
-
-  if (match) {
-    clientName = match[1];
-    addressText = match[2];
-  } else {
+  if (orderType === "deliver") {
+    const selectedAddress = document.getElementById("addressDropdown").value;
     const parts = selectedAddress.split(' - ');
-    clientName = parts[0];
-    addressText = parts[1] || '';
-  }
+    const clientName = parts[0];
+    const addressText = parts[1] || '';
 
-  detailsHtml += `<div><b>Customer Name:</b> ${clientName}</div>`;
-  detailsHtml += `<div><b>Address:</b> ${addressText}</div>`;
+    detailsHtml += `<div><b>Customer Name:</b> ${clientName}</div>`;
+    detailsHtml += `<div><b>Address:</b> ${addressText}</div>`;
   } else if (orderType === "pickup") {
-    // ✅ Check if pickup name is entered
     const pickupName = document.getElementById("pickupName").value.trim();
     if (!pickupName) {
       showModalMessage("Missing Info", "Please enter the name of the person picking up the order.", "#e74c3c", "fa-xmark");
-      return; // stop execution, modal won't show
+      return;
     }
     detailsHtml += `<div><b>Customer Name:</b> ${pickupName}</div>`;
     detailsHtml += `<div><b>Address:</b> 386 Sampaguita St., Brgy. Pansahan</div>`;
   }
 
-  // Items
+  // Add selected items
   detailsHtml += `<div style="margin-top:10px;"><b>Items:</b></div>`;
-  if (quantities.g1 > 0) {
-    detailsHtml += `<div>- Cylindrical Gallon: ${quantities.g1}</div>`;
-  }
-  if (quantities.g2 > 0) {
-    detailsHtml += `<div>- Rectangular Container: ${quantities.g2}</div>`;
-  }
-
-  // Order Type
+  if (quantities.g1 > 0) detailsHtml += `<div>- Cylindrical Gallon: ${quantities.g1}</div>`;
+  if (quantities.g2 > 0) detailsHtml += `<div>- Rectangular Container: ${quantities.g2}</div>`;
   detailsHtml += `<div style="margin-top:10px;"><b>Order type:</b> ${orderType.toUpperCase()}</div>`;
 
-  // Insert content into modal
   receiptDetails.innerHTML = detailsHtml;
 
   // Calculate total
   const totalAmount = (quantities.g1 * prices.g1) + (quantities.g2 * prices.g2);
 
-  // Show modal
+  // Show receipt modal
   receiptModal.style.display = 'flex';
 
   // Update total below payment method dynamically
@@ -600,86 +664,52 @@ if (orderType === "deliver") {
   }
   totalDiv.textContent = `Total: ₱${totalAmount}`;
 
-// Confirm button
-document.getElementById('confirmBtn').onclick = () => {
-  // Close the receipt modal
-  receiptModal.style.display = 'none';
-
-  // Create success modal if it doesn’t exist
+  // ✅ SUCCESS MODAL (created once)
   let successModal = document.getElementById('successModal');
   if (!successModal) {
     successModal = document.createElement('div');
     successModal.id = 'successModal';
-    successModal.style.position = 'fixed';
-    successModal.style.top = '0';
-    successModal.style.left = '0';
-    successModal.style.width = '100%';
-    successModal.style.height = '100%';
-    successModal.style.background = 'rgba(0,0,0,0.6)';
-    successModal.style.display = 'flex';
-    successModal.style.alignItems = 'center';
-    successModal.style.justifyContent = 'center';
-    successModal.style.zIndex = '9999';
-
     successModal.innerHTML = `
-      <div style="
-        background:white;
-        padding:30px;
-        border-radius:15px;
-        text-align:center;
-        width:280px;
-        box-shadow:0 0 15px rgba(0,0,0,0.3);
-      ">
-        <div style="
-          width:70px;
-          height:70px;
-          background:#00d084;
-          color:white;
-          border-radius:50%;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          margin:0 auto 10px auto;
-          font-size:36px;
-        ">
-          <i class="fa-solid fa-check"></i>
-        </div>
+      <div class="success-box">
+        <div class="success-icon"><i class="fa-solid fa-check"></i></div>
         <h2 style="margin:10px 0 5px 0; color:#0097a7;">Order Confirmed!</h2>
         <p style="font-size:14px; color:#555;">To check or track your order, go to the <b>Order</b> tab.</p>
-        <button id="okBtn" style="
-          margin-top:15px;
-          background:#00d084;
-          color:white;
-          border:none;
-          padding:8px 20px;
-          border-radius:8px;
-          cursor:pointer;
-          font-weight:bold;
-        ">OK</button>
+        <button id="okBtn">OK</button>
       </div>
     `;
     document.body.appendChild(successModal);
-  } else {
-    successModal.style.display = 'flex';
+
+    // ✅ Attach OK button once
+    document.getElementById('okBtn').onclick = () => {
+      successModal.style.display = 'none';
+
+      // Reset quantities
+      quantities.g1 = 0;
+      quantities.g2 = 0;
+
+      // Reset visible numbers
+      document.getElementById('qty-g1').textContent = '0';
+      document.getElementById('qty-g2').textContent = '0';
+
+      // Update order summary and total
+      updateOrderDetails();
+      updateTotal();
+    };
   }
 
-  // OK button closes the success modal
-  document.getElementById('okBtn').onclick = () => {
-    successModal.style.display = 'none';
+  // Confirm button: close receipt modal, show success modal
+  document.getElementById('confirmBtn').onclick = () => {
+    receiptModal.style.display = 'none';
+    successModal.style.display = 'flex';
   };
 
-  // Reset quantities
-  quantities.g1 = 0;
-  quantities.g2 = 0;
-  updateTotal();
-  updateOrderDetails();
-};
-
-  // Cancel button
+  // Cancel button: just close receipt modal
   document.getElementById('cancelBtn').onclick = () => {
     receiptModal.style.display = 'none';
   };
 }
+
+
 
 // Close modal if clicking outside
 window.onclick = function(event) {
