@@ -225,7 +225,6 @@
 
 <script>
   function showPopup(message, color = "#e74c3c") {
-    // Remove any existing popup
     const existing = document.getElementById("popupMsg");
     if (existing) existing.remove();
 
@@ -235,7 +234,7 @@
     popup.style.position = "absolute";
     popup.style.left = "50%";
     popup.style.transform = "translateX(-50%)";
-    popup.style.bottom = "-45px"; // position below the card
+    popup.style.bottom = "-45px";
     popup.style.background = color;
     popup.style.color = "white";
     popup.style.padding = "8px 18px";
@@ -247,22 +246,20 @@
     popup.style.opacity = "0";
     popup.style.transition = "opacity 0.3s ease";
 
-    // Attach below login card
     const card = document.querySelector(".login-card") || document.body;
     card.style.position = "relative";
     card.appendChild(popup);
 
-    // Animate fade in/out
-    setTimeout(() => (popup.style.opacity = "1"), 100); 
+    setTimeout(() => (popup.style.opacity = "1"), 100);
     setTimeout(() => {
       popup.style.opacity = "0";
       setTimeout(() => popup.remove(), 300);
-    }, 2000); 
+    }, 2000);
   }
 
   function login() {
-    const username = document.querySelector('input[type="text"]').value.trim();
-    const password = document.querySelector('input[type="password"]').value.trim();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
     const btn = document.querySelector("button");
 
     if (!username || !password) {
@@ -275,13 +272,17 @@
     btn.disabled = true;
 
     setTimeout(() => {
-      if (username === "Admin" && password === "Password") {
+      if (username === "Admin" && password === "1234") {
         showPopup("Welcome Admin!", "#00d084");
         setTimeout(() => (window.location.href = "admin-dashboard.html"), 1000);
       } 
       else if (username === "Camille" && password === "1234") {
         showPopup("Welcome Camille!", "#00d084");
         setTimeout(() => (window.location.href = "customer-dashboard-home.html"), 1000);
+      } 
+      else if (username === "Staff" && password === "1234") {
+        showPopup("Welcome Staff!", "#00d084");
+        setTimeout(() => (window.location.href = "staff.html"), 1000);
       } 
       else {
         showPopup("Invalid username or password.", "#e74c3c");
@@ -292,23 +293,23 @@
     }, 1500);
   }
 
-function forgotPassword() {
-  document.getElementById("forgotModal").style.display = "flex";
-}
-
-function closeForgot() {
-  document.getElementById("forgotModal").style.display = "none";
-}
-
-function sendReset() {
-  const input = document.getElementById("resetInput").value.trim();
-  if (input === "") {
-    showPopup("Please enter your email or username.", "#f1c40f");
-    return;
+  function forgotPassword() {
+    document.getElementById("forgotModal").style.display = "flex";
   }
-  showPopup("Password reset link has been sent!", "#00d084");
-  closeForgot();
-}
+
+  function closeForgot() {
+    document.getElementById("forgotModal").style.display = "none";
+  }
+
+  function sendReset() {
+    const input = document.getElementById("resetInput").value.trim();
+    if (input === "") {
+      showPopup("Please enter your email or username.", "#f1c40f");
+      return;
+    }
+    showPopup("Password reset link has been sent!", "#00d084");
+    closeForgot();
+  }
 </script>
 <script src="sound.js"></script>
 </body>
