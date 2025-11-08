@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff - List of Orders</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #b2ebf2, #81d4fa);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    @media (min-width: 1024px) {
+      body { padding: 0 30vw; }
+    }
+
+    /* Top Bar */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      padding: 12px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .top-bar h1 {
+      font-size: 22px;
+      color: #0097a7;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    .body-content {
+      margin-top: 60px;
+      margin-bottom: 70px;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Orders list */
+    .order-card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .order-card:hover {
+      transform: scale(1.02);
+    }
+
+    .order-info { flex: 1; }
+    .order-info b { color: #007c91; }
+
+    .order-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .order-buttons button {
+      border: none;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.9em;
+    }
+
+    .accept-btn { background: #00d084; color: white; }
+    .decline-btn { background: #e74c3c; color: white; }
+    .inactive-btn { background: #ccc !important; color: white; }
+
+    /* Add New Order Card */
+    .add-order-card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+      color: #0097a7;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .add-order-card:hover {
+      transform: scale(1.03);
+      background: #e0f7fa;
+    }
+    .add-order-card i {
+      margin-right: 8px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #ccc;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 0;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: #0097a7;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    @media (min-width: 768px) {
+      .bottom-nav { justify-content: center; gap: 110px; }
+    }
+
+    .bottom-nav button.active { color: #00d084; }
+    .bottom-nav i { font-size: 20px; margin-bottom: 4px; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 15px;
+      width: 85%;
+      max-width: 340px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .modal-content h3 { color: #0097a7; margin-bottom: 10px; }
+    .modal-content input {
+      width: 90%;
+      margin: 8px 0;
+      padding: 10px;
+      border: 2px solid #b2ebf2;
+      border-radius: 25px;
+      text-align: center;
+    }
+
+    .modal-content button {
+      width: 90%;
+      padding: 10px;
+      border-radius: 25px;
+      border: none;
+      margin-top: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .modal-content button:first-of-type { background: #00acc1; color: white; }
+    .close-btn { background: #ccc; color: white; }
+    .close-btn:hover { background: #aaa; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+
+.item-list {
+  text-align: left;
+  margin-top: 10px;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-control button {
+  background: #00acc1;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.qty-control button:hover {
+  background: #0097a7;
+}
+
+
+
+.popup-msg {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: #00d084; /* ✅ Green like login success */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  opacity: 0;
+  transition: all 0.4s ease;
+  z-index: 999;
+}
+.popup-msg.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <h1>List of Orders</h1>
+  </div>
+
+  <div class="body-content">
+
+      <!-- Add Order Card -->
+      <div class="add-order-card" onclick="openAddOrder()">
+        <i class="fa-solid fa-plus"></i> Add New Order
+      </div>
+
+    <div class="order-list">
+      <!-- Sample Orders -->
+      <div class="order-card">
+        <div class="order-info">
+          <b>Customer:</b> Camille Santos<br>
+          <b>Address:</b> 123 Mabini St., Quezon City<br>
+          <b>Item:</b> 2 Cylindrical Gallons<br>
+          <b>Payment:</b> COD
+        </div>
+        <div class="order-buttons">
+          <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+          <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
+        </div>
+      </div>
+
+      <div class="order-card">
+        <div class="order-info">
+          <b>Customer:</b> Mark Tolentino<br>
+          <b>Address:</b> 45 Bagong Ilog, Pasig City<br>
+          <b>Item:</b> 1 Rectangular Container<br>
+          <b>Payment:</b> COD
+        </div>
+        <div class="order-buttons">
+          <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+          <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
+        </div>
+      </div>
+
+      <div class="order-card">
+        <div class="order-info">
+          <b>Customer:</b> Jenny Cruz<br>
+          <b>Address:</b> 98 P. Burgos, Makati City<br>
+          <b>Item:</b> 3 Slim Gallons<br>
+          <b>Payment:</b> COD
+        </div>
+        <div class="order-buttons">
+          <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+          <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<!-- Modal Add Order -->
+<div id="addOrderModal" class="modal">
+  <div class="modal-content">
+    <h3>New Order</h3>
+    <input type="text" id="custName" placeholder="Customer Name" />
+    <input type="text" id="custAddress" placeholder="Address" />
+
+    <div class="item-list">
+      <div class="item-row">
+        <span>Cylindrical Gallon</span>
+        <div class="qty-control">
+          <button onclick="changeQty('cyl', -1)">−</button>
+          <span id="qty-cyl">0</span>
+          <button onclick="changeQty('cyl', 1)">+</button>
+        </div>
+      </div>
+      <div class="item-row">
+        <span>Rectangular Container</span>
+        <div class="qty-control">
+          <button onclick="changeQty('rect', -1)">−</button>
+          <span id="qty-rect">0</span>
+          <button onclick="changeQty('rect', 1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="addOrder()">Add Order</button>
+    <button class="close-btn" onclick="closeAddOrder()">Cancel</button>
+  </div>
+</div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button class="active" onclick="location.href='staff-dashboard-orders.html'">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span>Orders</span>
+    </button>
+    <button onclick="location.href='staff-dashboard-history.html'">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>History</span>
+    </button>
+    <button onclick="location.href='staff-dashboard-profile.html'">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </button>
+  </div>
+
+<script>
+  const quantities = { cyl: 0, rect: 0, slim: 0 };
+
+  function changeQty(type, delta) {
+    quantities[type] = Math.max(0, quantities[type] + delta);
+    document.getElementById(`qty-${type}`).textContent = quantities[type];
+  }
+
+  function chooseAction(btn, accepted) {
+    const card = btn.closest('.order-card');
+    const [acceptBtn, declineBtn] = card.querySelectorAll('button');
+
+    if (accepted) {
+      acceptBtn.classList.remove('inactive-btn');
+      declineBtn.classList.add('inactive-btn');
+      card.style.border = "4px solid #00d084";
+    } else {
+      declineBtn.classList.remove('inactive-btn');
+      acceptBtn.classList.add('inactive-btn');
+      card.style.border = "4px solid #e74c3c";
+    }
+  }
+
+  function openAddOrder() {
+    document.getElementById("addOrderModal").style.display = "flex";
+  }
+
+  function closeAddOrder() {
+    document.getElementById("addOrderModal").style.display = "none";
+  }
+
+function showMessage(msg, color = '#00d084') { // default green
+  // Remove existing message if any
+  const oldMsg = document.querySelector('.popup-msg');
+  if (oldMsg) oldMsg.remove();
+
+  const popup = document.createElement('div');
+  popup.className = 'popup-msg';
+  popup.textContent = msg;
+  popup.style.background = color;
+  popup.style.fontWeight = 'bold';
+
+  document.body.appendChild(popup);
+
+  setTimeout(() => popup.classList.add('show'), 10);
+  setTimeout(() => {
+    popup.classList.remove('show');
+    setTimeout(() => popup.remove(), 400);
+  }, 3000);
+}
+
+function addOrder() {
+  const name = document.getElementById("custName").value.trim();
+  const addr = document.getElementById("custAddress").value.trim();
+  const items = [];
+
+  if (quantities.cyl > 0) items.push(`${quantities.cyl} Cylindrical Gallon${quantities.cyl > 1 ? 's' : ''}`);
+  if (quantities.rect > 0) items.push(`${quantities.rect} Rectangular Container${quantities.rect > 1 ? 's' : ''}`);
+
+  if (!name || !addr || items.length === 0) {
+    showMessage("Please complete all fields and select at least one item.", "#f1c40f");
+    return;
+  }
+
+  const itemText = items.join(", ");
+
+  const newCard = document.createElement("div");
+  newCard.className = "order-card";
+  newCard.style.border = "4px solid #00d084"; // ✅ Auto accepted
+
+  newCard.innerHTML = `
+    <div class="order-info">
+      <b>Customer:</b> ${name}<br>
+      <b>Address:</b> ${addr}<br>
+      <b>Item:</b> ${itemText}<br>
+      <b>Payment:</b> COD
+    </div>
+    <div class="order-buttons">
+      <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+      <button class="decline-btn inactive-btn" onclick="chooseAction(this, false)">Decline</button>
+    </div>
+  `;
+
+  const list = document.querySelector(".order-list");
+  list.insertBefore(newCard, list.children[1]); // insert below "Add New Order"
+  closeAddOrder();
+
+showMessage("Order added successfully!", "#00d084"); // show immediately after modal hides
+
+  // Reset values
+  document.getElementById("custName").value = "";
+  document.getElementById("custAddress").value = "";
+  for (let key in quantities) {
+    quantities[key] = 0;
+    document.getElementById(`qty-${key}`).textContent = 0;
+  }
+
+}
+</script>
+<script src="sound.js"></script>
+</body>
+</html>
