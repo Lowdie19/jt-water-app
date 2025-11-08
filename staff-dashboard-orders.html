@@ -70,7 +70,11 @@
       transform: scale(1.02);
     }
 
-    .order-info { flex: 1; }
+    .order-info {
+      flex: 1;
+      word-wrap: break-word; /* Wrap long words */
+      overflow-wrap: anywhere; /* Ensure long unbroken text breaks */
+    }
     .order-info b { color: #007c91; }
 
     .order-buttons {
@@ -256,6 +260,19 @@
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* New order animation */
+.order-card.new-order {
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: all .8s ease;
+}
+
+.order-card.new-order.show-new {
+  transform: translateY(0);
+  opacity: 1;
+}
+
   </style>
 </head>
 <body>
@@ -278,8 +295,10 @@
         <div class="order-info">
           <b>Customer:</b> Camille Santos<br>
           <b>Address:</b> 123 Mabini St., Quezon City<br>
-          <b>Item:</b> 2 Cylindrical Gallons<br>
-          <b>Payment:</b> COD
+          <b>Date:</b> 2025-11-08<br>
+          <b>Order Type:</b> PICKUP<br><br>
+          <b>Item:</b> 3 Rectangular Container<br>
+          
         </div>
         <div class="order-buttons">
           <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
@@ -291,8 +310,9 @@
         <div class="order-info">
           <b>Customer:</b> Mark Tolentino<br>
           <b>Address:</b> 45 Bagong Ilog, Pasig City<br>
-          <b>Item:</b> 1 Rectangular Container<br>
-          <b>Payment:</b> COD
+          <b>Date:</b> 2025-11-08<br>
+          <b>Order Type:</b> PICKUP<br><br>
+          <b>Item:</b> 2 Cylindrical Gallons<br>
         </div>
         <div class="order-buttons">
           <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
@@ -304,8 +324,9 @@
         <div class="order-info">
           <b>Customer:</b> Jenny Cruz<br>
           <b>Address:</b> 98 P. Burgos, Makati City<br>
-          <b>Item:</b> 3 Slim Gallons<br>
-          <b>Payment:</b> COD
+          <b>Date:</b> 2025-11-08<br>
+          <b>Order Type:</b> PICKUP<br><br>
+          <b>Item:</b> 1 Cylindrical Gallons<br>
         </div>
         <div class="order-buttons">
           <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
@@ -322,6 +343,11 @@
     <h3>New Order</h3>
     <input type="text" id="custName" placeholder="Customer Name" />
     <input type="text" id="custAddress" placeholder="Address" />
+
+<select id="orderType" style="width:90%; padding:10px; border-radius:25px; margin:8px 0; border:2px solid #b2ebf2; text-align:center;">
+  <option value="PICKUP">PICKUP</option>
+  <option value="DELIVERY">DELIVERY</option>
+</select>
 
     <div class="item-list">
       <div class="item-row">
@@ -341,6 +367,7 @@
         </div>
       </div>
     </div>
+
 
     <button onclick="addOrder()">Add Order</button>
     <button class="close-btn" onclick="closeAddOrder()">Cancel</button>
@@ -417,6 +444,7 @@ function showMessage(msg, color = '#00d084') { // default green
 function addOrder() {
   const name = document.getElementById("custName").value.trim();
   const addr = document.getElementById("custAddress").value.trim();
+  const type = document.getElementById("orderType").value;
   const items = [];
 
   if (quantities.cyl > 0) items.push(`${quantities.cyl} Cylindrical Gallon${quantities.cyl > 1 ? 's' : ''}`);
@@ -427,39 +455,42 @@ function addOrder() {
     return;
   }
 
-  const itemText = items.join(", ");
+  const itemText = items.join("<br>");
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
 
   const newCard = document.createElement("div");
-  newCard.className = "order-card";
-  newCard.style.border = "4px solid #00d084"; // ✅ Auto accepted
+  newCard.className = "order-card new-order";
+  newCard.style.border = "4px solid #00d084";
 
-  newCard.innerHTML = `
-    <div class="order-info">
-      <b>Customer:</b> ${name}<br>
-      <b>Address:</b> ${addr}<br>
-      <b>Item:</b> ${itemText}<br>
-      <b>Payment:</b> COD
-    </div>
-    <div class="order-buttons">
-      <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
-      <button class="decline-btn inactive-btn" onclick="chooseAction(this, false)">Decline</button>
-    </div>
-  `;
+newCard.innerHTML = `
+  <div class="order-info">
+    <b>Customer:</b> ${name}<br>
+    <b>Address:</b> ${addr}<br>
+    <b>Date:</b> ${dateStr}<br>
+    <b>Order Type:</b> ${type}<br><br>
+    <b>Item:</b><br>${itemText}<br>
+  </div>
+  <div class="order-buttons">
+    <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+    <button class="decline-btn inactive-btn" onclick="chooseAction(this, false)">Decline</button>
+  </div>
+`;
 
   const list = document.querySelector(".order-list");
-  list.insertBefore(newCard, list.children[1]); // insert below "Add New Order"
+  list.insertBefore(newCard, list.children[0]);
+  setTimeout(() => newCard.classList.add("show-new"), 150);
   closeAddOrder();
-
-showMessage("Order added successfully!", "#00d084"); // show immediately after modal hides
+  showMessage("Order added successfully!", "#00d084");
 
   // Reset values
   document.getElementById("custName").value = "";
   document.getElementById("custAddress").value = "";
+  document.getElementById("orderType").value = "PICKUP";
   for (let key in quantities) {
     quantities[key] = 0;
     document.getElementById(`qty-${key}`).textContent = 0;
   }
-
 }
 </script>
 <script src="sound.js"></script>
