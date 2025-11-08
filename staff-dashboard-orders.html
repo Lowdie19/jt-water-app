@@ -289,39 +289,42 @@
         <i class="fa-solid fa-plus"></i> Add New Order
       </div>
 
-    <div class="order-list">
-      <!-- Sample Orders -->
-      <div class="order-card">
-        <div class="order-info">
-          <b>Customer:</b> Camille Santos<br>
-          <b>Address:</b> 123 Mabini St., Quezon City<br>
-          <b>Date:</b> 2025-11-08<br>
-          <b>Order Type:</b> PICKUP<br><br>
-          <b>Item:</b> 3 Rectangular Container<br>
-          
-        </div>
-        <div class="order-buttons">
-          <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
-          <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
-        </div>
-      </div>
+<div class="order-list">
+  <!-- Sample Orders -->
+  <div class="order-card">
+    <div class="order-info">
+      <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#ccc;">ORD001</span><br><br>
+      <b>Customer:</b> Camille Santos<br>
+      <b>Address:</b> 123 Mabini St., Quezon City<br>
+      <b>Date:</b> 2025-11-08<br>
+      <b>Order Type:</b> PICKUP<br><br>
+      <b>Item:</b> 3 Rectangular Container<br>
+    </div>
+    <div class="order-buttons">
+      <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+      <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
+    </div>
+  </div>
+
+  <div class="order-card">
+    <div class="order-info">
+      <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#ccc;">ORD002</span><br><br>
+      <b>Customer:</b> Mark Tolentino<br>
+      <b>Address:</b> 45 Bagong Ilog, Pasig City<br>
+      <b>Date:</b> 2025-11-08<br>
+      <b>Order Type:</b> PICKUP<br><br>
+      <b>Item:</b> 2 Cylindrical Gallons<br>
+    </div>
+    <div class="order-buttons">
+      <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+      <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
+    </div>
+  </div>
+</div>
 
       <div class="order-card">
         <div class="order-info">
-          <b>Customer:</b> Mark Tolentino<br>
-          <b>Address:</b> 45 Bagong Ilog, Pasig City<br>
-          <b>Date:</b> 2025-11-08<br>
-          <b>Order Type:</b> PICKUP<br><br>
-          <b>Item:</b> 2 Cylindrical Gallons<br>
-        </div>
-        <div class="order-buttons">
-          <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
-          <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
-        </div>
-      </div>
-
-      <div class="order-card">
-        <div class="order-info">
+          <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#ccc;">ORD002</span><br><br>
           <b>Customer:</b> Jenny Cruz<br>
           <b>Address:</b> 98 P. Burgos, Makati City<br>
           <b>Date:</b> 2025-11-08<br>
@@ -398,20 +401,23 @@
     document.getElementById(`qty-${type}`).textContent = quantities[type];
   }
 
-  function chooseAction(btn, accepted) {
-    const card = btn.closest('.order-card');
-    const [acceptBtn, declineBtn] = card.querySelectorAll('button');
+function chooseAction(btn, accepted) {
+  const card = btn.closest('.order-card');
+  const [acceptBtn, declineBtn] = card.querySelectorAll('button');
+  const orderIdSpan = card.querySelector('.order-id'); // select order id span
 
-    if (accepted) {
-      acceptBtn.classList.remove('inactive-btn');
-      declineBtn.classList.add('inactive-btn');
-      card.style.border = "4px solid #00d084";
-    } else {
-      declineBtn.classList.remove('inactive-btn');
-      acceptBtn.classList.add('inactive-btn');
-      card.style.border = "4px solid #e74c3c";
-    }
+  if (accepted) {
+    acceptBtn.classList.remove('inactive-btn');
+    declineBtn.classList.add('inactive-btn');
+    card.style.border = "4px solid #00d084";
+    orderIdSpan.style.color = "#00d084"; // match accept color
+  } else {
+    declineBtn.classList.remove('inactive-btn');
+    acceptBtn.classList.add('inactive-btn');
+    card.style.border = "4px solid #e74c3c";
+    orderIdSpan.style.color = "#e74c3c"; // match decline color
   }
+}
 
   function openAddOrder() {
     document.getElementById("addOrderModal").style.display = "flex";
@@ -459,12 +465,18 @@ function addOrder() {
   const today = new Date();
   const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
 
+  // Generate Order ID like ORD001, ORD002, etc.
+  const orderCount = document.querySelectorAll(".order-card").length + 1;
+  const orderId = `ORD${Math.floor(Math.random() * 900 + 100)}`;
+  
+  
   const newCard = document.createElement("div");
   newCard.className = "order-card new-order";
   newCard.style.border = "4px solid #00d084";
 
 newCard.innerHTML = `
   <div class="order-info">
+    <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#00d084;">${orderId}</span><br><br>
     <b>Customer:</b> ${name}<br>
     <b>Address:</b> ${addr}<br>
     <b>Date:</b> ${dateStr}<br>
