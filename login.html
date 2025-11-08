@@ -107,6 +107,84 @@
     .register a:hover {
       text-decoration: underline;
     }
+
+    .forgot {
+      text-align: center;
+      margin: 8px;
+    }
+    .forgot a {
+      color: #00acc1;
+      font-size: 0.9em;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .forgot a:hover {
+      text-decoration: underline;
+    }
+
+/* Forgot Password Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 15px;
+  width: 85%;
+  max-width: 340px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  animation: fadeIn 0.4s ease;
+}
+
+.modal-content h3 {
+  color: #0097a7;
+  margin-bottom: 10px;
+}
+
+.modal-content input {
+  width: 90%;
+  margin: 10px 0;
+  padding: 10px;
+  border: 2px solid #b2ebf2;
+  border-radius: 25px;
+  text-align: center;
+}
+
+.modal-content button {
+  width: 90%;
+  padding: 10px;
+  border-radius: 25px;
+  border: none;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modal-content button:first-of-type {
+  background: #00acc1;
+  color: white;
+}
+
+.modal-content .close-btn {
+  background: #ccc;
+  color: black;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
   </style>
 </head>
 <body>
@@ -116,9 +194,25 @@
     </div>
     <div class="login-title">Login</div>
 
-    <input type="text" placeholder="Username" />
-    <input type="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
+<input type="text" id="username" placeholder="Username" />
+<input type="password" id="password" placeholder="Password" />
+
+<div class="forgot">
+  <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+</div>
+
+<button onclick="login()">Login</button>
+
+<!-- Forgot Password Modal -->
+<div id="forgotModal" class="modal">
+  <div class="modal-content">
+    <h3>Reset Password</h3>
+    <p>Please enter your registered email or username.</p>
+    <input type="text" id="resetInput" placeholder="Email or Username" />
+    <button onclick="sendReset()">Send Reset Link</button>
+    <button class="close-btn" onclick="closeForgot()">Close</button>
+  </div>
+</div>
 
     <div class="register">
       Don’t have an account?
@@ -127,18 +221,92 @@
   </div>
 
 <script>
+  function showPopup(message, color = "#e74c3c") {
+    // Remove any existing popup
+    const existing = document.getElementById("popupMsg");
+    if (existing) existing.remove();
+
+    const popup = document.createElement("div");
+    popup.id = "popupMsg";
+    popup.textContent = message;
+    popup.style.position = "absolute";
+    popup.style.left = "50%";
+    popup.style.transform = "translateX(-50%)";
+    popup.style.bottom = "-45px"; // position below the card
+    popup.style.background = color;
+    popup.style.color = "white";
+    popup.style.padding = "8px 18px";
+    popup.style.borderRadius = "6px";
+    popup.style.fontSize = "14px";
+    popup.style.fontWeight = "bold";
+    popup.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
+    popup.style.zIndex = "9999";
+    popup.style.opacity = "0";
+    popup.style.transition = "opacity 0.3s ease";
+
+    // Attach below login card
+    const card = document.querySelector(".login-card") || document.body;
+    card.style.position = "relative";
+    card.appendChild(popup);
+
+    // Animate fade in/out
+    setTimeout(() => (popup.style.opacity = "1"), 100); 
+    setTimeout(() => {
+      popup.style.opacity = "0";
+      setTimeout(() => popup.remove(), 300);
+    }, 2000); 
+  }
+
   function login() {
+    const username = document.querySelector('input[type="text"]').value.trim();
+    const password = document.querySelector('input[type="password"]').value.trim();
     const btn = document.querySelector("button");
+
+    if (!username || !password) {
+      showPopup("Please enter both fields.", "#f1c40f");
+      return;
+    }
+
     btn.innerText = "Logging in...";
     btn.style.background = "#26c6da";
+    btn.disabled = true;
+
     setTimeout(() => {
-      // ✅ Redirect instead of alert
-      window.location.href = "customer-dashboard-home.html";
+      if (username === "Admin" && password === "Password") {
+        showPopup("Welcome Admin!", "#00d084");
+        setTimeout(() => (window.location.href = "admin-dashboard.html"), 1000);
+      } 
+      else if (username === "Camille" && password === "1234") {
+        showPopup("Welcome Camille!", "#00d084");
+        setTimeout(() => (window.location.href = "customer-dashboard-home.html"), 1000);
+      } 
+      else {
+        showPopup("Invalid username or password.", "#e74c3c");
+        btn.innerText = "Login";
+        btn.style.background = "#00acc1";
+        btn.disabled = false;
+      }
     }, 1500);
   }
+
+function forgotPassword() {
+  document.getElementById("forgotModal").style.display = "flex";
+}
+
+function closeForgot() {
+  document.getElementById("forgotModal").style.display = "none";
+}
+
+function sendReset() {
+  const input = document.getElementById("resetInput").value.trim();
+  if (input === "") {
+    showPopup("Please enter your email or username.", "#f1c40f");
+    return;
+  }
+  showPopup("Password reset link has been sent!", "#00d084");
+  closeForgot();
+}
 </script>
 <script src="sound.js"></script>
 </body>
 </html>
-
-
