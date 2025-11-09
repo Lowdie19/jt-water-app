@@ -46,7 +46,7 @@
 
     .body-content {
       margin-top: 60px;
-      margin-bottom: 70px;
+      margin-bottom: 250px; 
       padding: 0 16px;
       display: flex;
       flex-direction: column;
@@ -285,6 +285,98 @@
   opacity: 1;
 }
 
+/* Floating Summary Card */
+.summary-layout {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr; /* Label | Delivery | Pickup */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.summary-layout .label {
+  text-align: left;
+  font-weight: regular;
+}
+
+.summary-layout .header {
+  font-weight: bold;
+  color: black;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.summary-label {
+  flex: 1.2;
+  color: #007c91;
+}
+
+.summary-box {
+  flex: 0.5;
+  text-align: center;
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 4px 0;
+  color: #007c91;
+  min-width: 60px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.summary-box.title {
+  background: #e0f7fa;
+  font-weight: bold;
+  color: #006064;
+}
+
+.summary-row.total .summary-box {
+  background: #e8f5e9;
+  font-weight: bold;
+  color: #1b5e20;
+}
+
+.summary-card {
+  position: fixed;
+  bottom: 70px; /* above bottom nav */
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 16px;
+  padding: 15px 20px; /* slightly smaller padding for mobile */
+  width: 90%;
+  max-width: 400px; /* ensures it doesn't exceed this on tablets/desktops */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  text-align: center;
+  z-index: 15;
+}
+
+/* Extra precaution for very small Android screens */
+@media (max-width: 360px),(max-width: 412px) {
+  .summary-card {
+    width: 90%;       /* almost full width */
+    padding: 12px 15px;
+    max-width: 350px; /* cap width to fit small devices */
+  }
+}
+
+.summary-card h3 {
+  color: #0097a7;
+  margin: 0 0 20px 0;
+  font-size: 22px;
+}
+
   </style>
 </head>
 <body>
@@ -309,7 +401,7 @@
       <b>Customer:</b> Camille Santos<br>
       <b>Address:</b> 123 Mabini St., Quezon City<br>
       <b>Date:</b> 2025-11-08<br>
-      <b>Order Type:</b> DELIVERY<br><br>
+      <b>Order Type:</b> <b style="color: black;">DELIVERY</b><br><br>
       <b>Item:</b> 3 Rectangular Container<br>
     </div>
     <div class="order-buttons">
@@ -324,7 +416,7 @@
       <b>Customer:</b> Mark Tolentino<br>
       <b>Address:</b> 45 Bagong Ilog, Pasig City<br>
       <b>Date:</b> 2025-11-08<br>
-      <b>Order Type:</b> DELIVERY<br><br>
+      <b>Order Type:</b> <b style="color: black;">DELIVERY</b><br><br>
       <b>Item:</b> 2 Cylindrical Gallons<br>
     </div>
     <div class="order-buttons">
@@ -340,7 +432,7 @@
           <b>Customer:</b> Jenny Cruz<br>
           <b>Address:</b> 98 P. Burgos, Makati City<br>
           <b>Date:</b> 2025-11-08<br>
-          <b>Order Type:</b> PICKUP<br><br>
+          <b>Order Type:</b> <b style="color: black;">PICKUP</b><br><br>
           <b>Item:</b> 1 Cylindrical Gallons<br>
         </div>
         <div class="order-buttons">
@@ -350,7 +442,6 @@
       </div>
 
     </div>
-  </div>
 
 <!-- Modal Add Order -->
 <div id="addOrderModal" class="modal">
@@ -387,6 +478,28 @@
 
     <button onclick="addOrder()">Add Order</button>
     <button class="close-btn" onclick="closeAddOrder()">Cancel</button>
+  </div>
+</div>
+
+<!-- Floating Summary Card -->
+<div class="summary-card">
+  <h3>Order Summary</h3>
+  <div class="summary-layout">
+    <div></div>
+    <div class="header">DELIVERY</div>
+    <div class="header">PICKUP</div>
+
+    <div class="label">Total Rectangular:</div>
+    <div id="deliveryRectTotal">0</div>
+    <div id="pickupRectTotal">0</div>
+
+    <div class="label">Total Cylindrical:</div>
+    <div id="deliveryCylTotal">0</div>
+    <div id="pickupCylTotal">0</div>
+
+    <div class="label"><b>Total of Orders:</b></div>
+    <div id="deliveryTotal"><b>0</b></div>
+    <div id="pickupTotal"><b>0</b></div>
   </div>
 </div>
 
@@ -493,7 +606,7 @@ newCard.innerHTML = `
     <b>Customer:</b> ${name}<br>
     <b>Address:</b> ${addr}<br>
     <b>Date:</b> ${dateStr}<br>
-    <b>Order Type:</b> ${type}<br><br>
+    <b>Order Type:</b> <b style="color: black;">${type}</b><br><br>
     <b>Item:</b><br>${itemText}<br>
   </div>
   <div class="order-buttons">
@@ -516,6 +629,38 @@ newCard.innerHTML = `
     quantities[key] = 0;
     document.getElementById(`qty-${key}`).textContent = 0;
   }
+}
+
+function updateSummary() {
+  let pickupRect = 0, pickupCyl = 0, delivRect = 0, delivCyl = 0;
+
+  document.querySelectorAll(".order-card").forEach(card => {
+    const info = card.querySelector(".order-info").innerText;
+    const type = info.includes("PICKUP") ? "pickup" : "delivery";
+
+    const cylMatch = info.match(/(\d+)\s+Cylindrical/);
+    const rectMatch = info.match(/(\d+)\s+Rectangular/);
+
+    const cylCount = cylMatch ? parseInt(cylMatch[1]) : 0;
+    const rectCount = rectMatch ? parseInt(rectMatch[1]) : 0;
+
+    if (type === "pickup") {
+      pickupCyl += cylCount;
+      pickupRect += rectCount;
+    } else {
+      delivCyl += cylCount;
+      delivRect += rectCount;
+    }
+  });
+
+  // update all numbers
+  document.getElementById("pickupRect").textContent = pickupRect;
+  document.getElementById("pickupCyl").textContent = pickupCyl;
+  document.getElementById("pickupTotal").textContent = pickupRect + pickupCyl;
+
+  document.getElementById("delivRect").textContent = delivRect;
+  document.getElementById("delivCyl").textContent = delivCyl;
+  document.getElementById("delivTotal").textContent = delivRect + delivCyl;
 }
 </script>
 <script src="sound.js"></script>
