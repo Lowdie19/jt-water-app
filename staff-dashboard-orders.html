@@ -220,7 +220,9 @@
 .qty-control {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px; /* spacing between buttons and number */
+  min-width: 100px;
 }
 
 .qty-control button {
@@ -228,11 +230,21 @@
   color: white;
   border: none;
   border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  line-height: 30px; /* ✅ perfectly center symbol */
+  text-align: center;
   cursor: pointer;
+  padding: 0;
   transition: 0.2s;
+}
+
+.qty-control span {
+  min-width: 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 .qty-control button:hover {
@@ -351,6 +363,7 @@
   <option value="PICKUP">PICKUP</option>
   <option value="DELIVERY">DELIVERY</option>
 </select>
+
 
     <div class="item-list">
       <div class="item-row">
