@@ -331,7 +331,7 @@
   border-radius: 6px;
   padding: 4px 0;
   color: #007c91;
-  min-width: 60px;
+  min-width: 50px;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
@@ -398,8 +398,8 @@
   <div class="order-card">
     <div class="order-info">
       <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#ccc;">ORD341</span><br><br>
-      <b>Customer:</b> Camille Santos<br>
-      <b>Address:</b> 123 Mabini St., Quezon City<br>
+      <b>Customer:</b> Camille Tolentino<br>
+      <b>Address:</b> Tawiran St., Brgy. Panasahan<br>
       <b>Date:</b> 2025-11-08<br>
       <b>Order Type:</b> <b style="color: black;">DELIVERY</b><br><br>
       <b>Item:</b> 3 Rectangular Container<br>
@@ -410,27 +410,27 @@
     </div>
   </div>
 
-  <div class="order-card">
-    <div class="order-info">
-      <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#ccc;">ORD502</span><br><br>
-      <b>Customer:</b> Mark Tolentino<br>
-      <b>Address:</b> 45 Bagong Ilog, Pasig City<br>
-      <b>Date:</b> 2025-11-08<br>
-      <b>Order Type:</b> <b style="color: black;">DELIVERY</b><br><br>
-      <b>Item:</b> 2 Cylindrical Gallons<br>
-    </div>
-    <div class="order-buttons">
-      <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
-      <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
-    </div>
-  </div>
-</div>
+      <div class="order-card">
+        <div class="order-info">
+          <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#ccc;">ORD045</span><br><br>
+          <b>Customer:</b> Kim Liwanag<br>
+          <b>Address:</b> Camino St., Brgy. Bagna<br>
+          <b>Date:</b> 2025-11-08<br>
+          <b>Order Type:</b> <b style="color: black;">DELIVERY</b><br><br>
+          <b>Item:</b> 2 Rectangular Container<br>
+        </div>
+        <div class="order-buttons">
+          <button class="accept-btn" onclick="chooseAction(this, true)">Accept</button>
+          <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
+        </div>
+      </div>
+
 
       <div class="order-card">
         <div class="order-info">
           <span class="order-id" style="font-size:0.85em; font-weight:bold; color:#ccc;">ORD045</span><br><br>
-          <b>Customer:</b> Jenny Cruz<br>
-          <b>Address:</b> 98 P. Burgos, Makati City<br>
+          <b>Customer:</b> Bea Arcega<br>
+          <b>Address:</b> Samapagita St., Brgy. Panasahan<br>
           <b>Date:</b> 2025-11-08<br>
           <b>Order Type:</b> <b style="color: black;">PICKUP</b><br><br>
           <b>Item:</b> 1 Cylindrical Gallons<br>
@@ -440,6 +440,7 @@
           <button class="decline-btn" onclick="chooseAction(this, false)">Decline</button>
         </div>
       </div>
+  </div>
 
     </div>
 
@@ -498,8 +499,8 @@
     <div id="pickupCylTotal">0</div>
 
     <div class="label"><b>Total of Orders:</b></div>
-    <div id="deliveryTotal"><b>0</b></div>
-    <div id="pickupTotal"><b>0</b></div>
+<div id="deliveryTotal" class="summary-box"><b>0</b></div>
+<div id="pickupTotal" class="summary-box"><b>0</b></div>
   </div>
 </div>
 
@@ -676,7 +677,8 @@ function updateSummary() {
 
   document.getElementById("deliveryRectTotal").textContent = delivRect;
   document.getElementById("deliveryCylTotal").textContent = delivCyl;
-  document.getElementById("deliveryTotal").textContent = delivRect + delivCyl;
+document.getElementById("deliveryTotal").innerHTML = `<b>${delivRect + delivCyl}</b>`;
+document.getElementById("pickupTotal").innerHTML = `<b>${pickupRect + pickupCyl}</b>`;
 }
 
 
