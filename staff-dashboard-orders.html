@@ -589,16 +589,15 @@ function addOrder() {
 
   const itemText = items.join("<br>");
   const today = new Date();
-  const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+  const dateStr = today.toISOString().split('T')[0];
 
-  // Generate Order ID like ORD001, ORD002, etc.
-  const orderCount = document.querySelectorAll(".order-card").length + 1;
+  // Generate a random Order ID
   const orderId = `ORD${Math.floor(Math.random() * 900 + 100)}`;
-  
-  
+
+  // Create new order card
   const newCard = document.createElement("div");
-  newCard.className = "order-card new-order";
-  newCard.style.border = "4px solid #00d084";
+  newCard.className = "order-card new-order"; 
+  newCard.style.border = "4px solid #00d084"; // green border = accepted
 
 newCard.innerHTML = `
   <div class="order-info">
@@ -615,13 +614,22 @@ newCard.innerHTML = `
   </div>
 `;
 
+  // Insert new order at top
   const list = document.querySelector(".order-list");
   list.insertBefore(newCard, list.children[0]);
   setTimeout(() => newCard.classList.add("show-new"), 150);
+
+  // ✅ Auto mark as accepted
+  const acceptBtn = newCard.querySelector('.accept-btn');
+  chooseAction(acceptBtn, true)
+  const declineBtn = newCard.querySelector('.decline-btn');
+  acceptBtn.classList.remove('inactive-btn'); // active
+  declineBtn.classList.add('inactive-btn');   // inactive
+
+  // Close modal & reset fields
   closeAddOrder();
   showMessage("Order added successfully!", "#00d084");
 
-  // Reset values
   document.getElementById("custName").value = "";
   document.getElementById("custAddress").value = "";
   document.getElementById("orderType").value = "PICKUP";
@@ -629,22 +637,31 @@ newCard.innerHTML = `
     quantities[key] = 0;
     document.getElementById(`qty-${key}`).textContent = 0;
   }
+
+  // ✅ Update summary immediately
+  updateSummary();
 }
 
 function updateSummary() {
   let pickupRect = 0, pickupCyl = 0, delivRect = 0, delivCyl = 0;
 
   document.querySelectorAll(".order-card").forEach(card => {
-    const info = card.querySelector(".order-info").innerText;
-    const type = info.includes("PICKUP") ? "pickup" : "delivery";
+    const isAccepted = card.classList.contains("accepted");
+    if (!isAccepted) return;
 
-    const cylMatch = info.match(/(\d+)\s+Cylindrical/);
-    const rectMatch = info.match(/(\d+)\s+Rectangular/);
+    const typeElem = card.querySelector(".order-info b + b");
+    const type = typeElem ? typeElem.innerText.trim().toUpperCase() : "DELIVERY";
+
+    const info = card.querySelector(".order-info").innerText;
+
+    // Only match the item lines (ignore order ID)
+    const cylMatch = info.match(/(\d+)\s+Cylindrical\s+Gallon/i);
+    const rectMatch = info.match(/(\d+)\s+Rectangular\s+Container/i);
 
     const cylCount = cylMatch ? parseInt(cylMatch[1]) : 0;
     const rectCount = rectMatch ? parseInt(rectMatch[1]) : 0;
 
-    if (type === "pickup") {
+    if (type === "PICKUP") {
       pickupCyl += cylCount;
       pickupRect += rectCount;
     } else {
@@ -653,15 +670,44 @@ function updateSummary() {
     }
   });
 
-  // update all numbers
-  document.getElementById("pickupRect").textContent = pickupRect;
-  document.getElementById("pickupCyl").textContent = pickupCyl;
+  document.getElementById("pickupRectTotal").textContent = pickupRect;
+  document.getElementById("pickupCylTotal").textContent = pickupCyl;
   document.getElementById("pickupTotal").textContent = pickupRect + pickupCyl;
 
-  document.getElementById("delivRect").textContent = delivRect;
-  document.getElementById("delivCyl").textContent = delivCyl;
-  document.getElementById("delivTotal").textContent = delivRect + delivCyl;
+  document.getElementById("deliveryRectTotal").textContent = delivRect;
+  document.getElementById("deliveryCylTotal").textContent = delivCyl;
+  document.getElementById("deliveryTotal").textContent = delivRect + delivCyl;
 }
+
+
+
+// Optional: update summary if someone clicks Accept/Decline
+function chooseAction(btn, accepted) {
+  const card = btn.closest('.order-card');
+  const [acceptBtn, declineBtn] = card.querySelectorAll('button');
+  const orderIdSpan = card.querySelector('.order-id');
+
+  if (accepted) {
+    card.classList.add('accepted');      // ✅ mark as accepted
+    card.classList.remove('declined');   // remove declined
+    acceptBtn.classList.remove('inactive-btn');
+    declineBtn.classList.add('inactive-btn');
+    card.style.border = "4px solid #00d084";
+    orderIdSpan.style.color = "#00d084";
+  } else {
+    card.classList.add('declined');
+    card.classList.remove('accepted');
+    declineBtn.classList.remove('inactive-btn');
+    acceptBtn.classList.add('inactive-btn');
+    card.style.border = "4px solid #e74c3c";
+    orderIdSpan.style.color = "#e74c3c";
+  }
+
+  updateSummary();
+}
+
+// Initial summary calculation on page load
+updateSummary();
 </script>
 <script src="sound.js"></script>
 </body>
