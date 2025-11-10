@@ -250,6 +250,13 @@
   <button onclick="openCalendar()"><i class="fa-solid fa-calendar-days"></i></button>
 </div>
 
+<div style="display: flex; justify-content: center; margin: 8px 0;">
+  <button onclick="showAllOrders()" 
+          style="padding: 6px 12px; border-radius: 20px; background:#00acc1; color:white; border:none; cursor:pointer; font-weight: bold;">
+    Show All Orders
+  </button>
+</div>
+
 <!-- Body Content -->
 <div class="body-content" id="historyList">
 
@@ -315,12 +322,6 @@
   </div>
 </div>
 
-<div style="display: flex; justify-content: center; margin: 8px 0;">
-  <button onclick="showAllOrders()" 
-          style="padding: 6px 12px; border-radius: 20px; background:#00acc1; color:white; border:none; cursor:pointer; font-weight: bold;">
-    Show All Orders
-  </button>
-</div>
 
 <!-- Bottom Navigation -->
 <div class="bottom-nav">
@@ -340,11 +341,73 @@
 
 <script>
 function filterOrders() {
-  const query = document.getElementById('searchOrders').value.toLowerCase();
+  const query = document.getElementById('searchOrders').value.trim().toLowerCase();
+  let visibleOrders = 0;
+
   document.querySelectorAll('.history-card').forEach(card => {
-    const customer = card.querySelector('.history-info').innerText.toLowerCase();
-    card.style.display = customer.includes(query) ? '' : 'none';
+    const info = card.querySelector('.history-info').innerText.toLowerCase();
+    const dateStr = card.dataset.date; // "YYYY-MM-DD"
+    let match = false;
+
+    // Check if query matches name or any text in info
+    if (info.includes(query)) {
+      match = true;
+    } else if (query) {
+      // Try to interpret query as a date
+      const parsed = new Date(query);
+      if (!isNaN(parsed)) {
+        const cardDate = new Date(dateStr);
+        // Match by year-month-day equality
+        if (
+          cardDate.getFullYear() === parsed.getFullYear() &&
+          cardDate.getMonth() === parsed.getMonth() &&
+          cardDate.getDate() === parsed.getDate()
+        ) {
+          match = true;
+        }
+      } else {
+        // Try partial match for month names or day numbers (e.g., "jan", "feb 5")
+        const monthNames = [
+          "january","february","march","april","may","june",
+          "july","august","september","october","november","december"
+        ];
+        const cardDate = new Date(dateStr);
+        const monthName = monthNames[cardDate.getMonth()];
+        const day = cardDate.getDate().toString();
+        const year = cardDate.getFullYear().toString();
+
+        if (
+          monthName.includes(query) ||
+          day === query ||
+          year === query ||
+          (`${monthName} ${day}`).includes(query)
+        ) {
+          match = true;
+        }
+      }
+    }
+
+    card.style.display = match ? '' : 'none';
+    if (match) visibleOrders++;
   });
+
+  // Hide all month dividers first
+  document.querySelectorAll('.month-divider').forEach(divider => divider.style.display = 'none');
+
+  // Show month dividers only if their section has visible orders
+  document.querySelectorAll('.history-card').forEach(card => {
+    if (card.style.display !== 'none') {
+      const divider = card.previousElementSibling;
+      if (divider && divider.classList.contains('month-divider')) {
+        divider.style.display = '';
+      }
+    }
+  });
+
+  // If no visible orders, keep all dividers hidden
+  if (visibleOrders === 0) {
+    document.querySelectorAll('.month-divider').forEach(divider => divider.style.display = 'none');
+  }
 }
 
 function openCalendar() {
@@ -398,16 +461,36 @@ function renderCalendar() {
 }
 
 function filterByFullDate(year, month, day) {
+  let hasOrder = false;
+  
   document.querySelectorAll('.history-card').forEach(card => {
     const date = new Date(card.dataset.date);
-    card.style.display = (date.getFullYear() === year && date.getMonth() === month && date.getDate() === day)
-                         ? '' : 'none';
+    const match = (date.getFullYear() === year && date.getMonth() === month && date.getDate() === day);
+    card.style.display = match ? '' : 'none';
+    if (match) hasOrder = true;
   });
+
+  // Hide all month dividers first
+  document.querySelectorAll('.month-divider').forEach(divider => divider.style.display = 'none');
+
+  // If at least one order matched, show its related month divider(s)
+  if (hasOrder) {
+    document.querySelectorAll('.history-card').forEach(card => {
+      if (card.style.display !== 'none') {
+        const divider = card.previousElementSibling;
+        if (divider && divider.classList.contains('month-divider')) {
+          divider.style.display = '';
+        }
+      }
+    });
+  }
+
   closeCalendar();
 }
 
 function showAllOrders() {
   document.querySelectorAll('.history-card').forEach(card => card.style.display = '');
+  document.querySelectorAll('.month-divider').forEach(divider => divider.style.display = ''); // ✅ show month dividers again
   document.getElementById('searchOrders').value = ''; // also clear search input
 }
 </script>
