@@ -195,7 +195,6 @@ function renderAssignments() {
   const container = document.getElementById('driverAssignList');
   container.innerHTML = '';
 
-  // Group by address
   const grouped = {};
   assignments.forEach(a => {
     if (!grouped[a.address]) grouped[a.address] = [];
@@ -203,7 +202,6 @@ function renderAssignments() {
   });
 
   for (const address in grouped) {
-    // Address header with border-top
     const header = document.createElement('div');
     header.className = 'address-header';
     header.textContent = address;
@@ -213,6 +211,18 @@ function renderAssignments() {
       const card = document.createElement('div');
       card.className = 'assign-card';
       card.dataset.address = a.address;
+      card.dataset.id = a.id;
+      card.dataset.status = a._status || 'normal';
+
+      // Apply stored visual state
+      if (a._status === 'delivered') {
+        card.style.border = '4px solid #00d084';
+        card.style.opacity = '0.6';
+      } else if (a._status === 'failed') {
+        card.style.border = '4px solid #e74c3c';
+        card.style.opacity = '1';
+      }
+
       card.innerHTML = `
         <div class="assign-info">
           <b>Order ID:</b> ${a.id}<br>
@@ -232,42 +242,35 @@ function renderAssignments() {
 
 function chooseAssign(btn, delivered) {
   const card = btn.closest('.assign-card');
-  const statusSpan = card.querySelector('.assign-info b:last-child');
+  const id = card.dataset.id;
+  const assignment = assignments.find(a => a.id === id);
 
+  // Toggle state
   if (delivered) {
-    card.style.border = '4px solid #00d084';
-    statusSpan.textContent += ' - Delivered';
-    showMessage(`Order ${card.dataset.address} marked Delivered!`, '#00d084');
+    if (assignment._status === 'delivered') {
+      assignment._status = 'normal';
+      card.style.border = '4px solid transparent';
+      card.style.opacity = '1';
+    } else {
+      assignment._status = 'delivered';
+      card.style.border = '4px solid #00d084';
+      card.style.opacity = '0.6';
+    }
   } else {
-    card.style.border = '4px solid #e74c3c';
-    statusSpan.textContent += ' - Failed';
-    showMessage(`Order ${card.dataset.address} marked Failed!`, '#e74c3c');
+    if (assignment._status === 'failed') {
+      assignment._status = 'normal';
+      card.style.border = '4px solid transparent';
+      card.style.opacity = '1';
+    } else {
+      assignment._status = 'failed';
+      card.style.border = '4px solid #e74c3c';
+      card.style.opacity = '1';
+    }
   }
 
-  card.querySelectorAll('button').forEach(b => b.disabled = true);
+  card.dataset.status = assignment._status;
 }
 
-function showMessage(msg, color = '#00d084') {
-  const oldMsg = document.querySelector('.popup-msg');
-  if (oldMsg) oldMsg.remove();
-
-  const popup = document.createElement('div');
-  popup.className = 'popup-msg';
-  popup.textContent = msg;
-  popup.style.background = color;
-  popup.style.fontWeight = 'bold';
-  document.body.appendChild(popup);
-
-  if (typeof playSuccess === "function") playSuccess();
-
-  setTimeout(() => popup.classList.add('show'), 10);
-  setTimeout(() => {
-    popup.classList.remove('show');
-    setTimeout(() => popup.remove(), 400);
-  }, 3000);
-}
-
-// Simulate incoming assignments
 let counter = 506;
 const addresses = ['Tawiran St., Brgy. Panashan', 'Sampaguita St., Brgy. Panashan', 'Azusena St., Brgy. Panashan'];
 const customers = ['Kim Liwanag', 'Catlyn Dala', 'Julie Quizon'];
@@ -280,11 +283,11 @@ function addRandomAssignment() {
     customer: customers[Math.floor(Math.random()*customers.length)],
     address: addresses[Math.floor(Math.random()*addresses.length)],
     items: items[Math.floor(Math.random()*items.length)],
-    status: statuses[Math.floor(Math.random()*statuses.length)]
+    status: statuses[Math.floor(Math.random()*statuses.length)],
+    _status: 'normal'
   };
   assignments.push(assignment);
   renderAssignments();
-  showMessage('New Order Received!', '#00d084');
 }
 
 window.onload = () => {
