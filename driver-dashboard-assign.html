@@ -245,32 +245,52 @@ function chooseAssign(btn, delivered) {
   const id = card.dataset.id;
   const assignment = assignments.find(a => a.id === id);
 
+  const deliveredBtn = card.querySelector('.delivered-btn');
+  const failedBtn = card.querySelector('.failed-btn');
+
   // Toggle state
   if (delivered) {
     if (assignment._status === 'delivered') {
       assignment._status = 'normal';
       card.style.border = '4px solid transparent';
       card.style.opacity = '1';
+      deliveredBtn.classList.remove('active-btn');
+      failedBtn.classList.remove('inactive-btn');
+      deliveredBtn.style.background = '#00d084';
+      failedBtn.style.background = '#e74c3c';
     } else {
       assignment._status = 'delivered';
       card.style.border = '4px solid #00d084';
       card.style.opacity = '0.6';
+      deliveredBtn.classList.add('active-btn');
+      failedBtn.classList.remove('active-btn');
+      // Gray out unchosen button
+      failedBtn.style.background = '#ccc';
+      deliveredBtn.style.background = '#00d084';
     }
   } else {
     if (assignment._status === 'failed') {
       assignment._status = 'normal';
       card.style.border = '4px solid transparent';
       card.style.opacity = '1';
+      failedBtn.classList.remove('active-btn');
+      deliveredBtn.classList.remove('inactive-btn');
+      deliveredBtn.style.background = '#00d084';
+      failedBtn.style.background = '#e74c3c';
     } else {
       assignment._status = 'failed';
       card.style.border = '4px solid #e74c3c';
       card.style.opacity = '1';
+      failedBtn.classList.add('active-btn');
+      deliveredBtn.classList.remove('active-btn');
+      // Gray out unchosen button
+      deliveredBtn.style.background = '#ccc';
+      failedBtn.style.background = '#e74c3c';
     }
   }
 
   card.dataset.status = assignment._status;
 }
-
 let counter = 506;
 const addresses = ['Tawiran St., Brgy. Panashan', 'Sampaguita St., Brgy. Panashan', 'Azusena St., Brgy. Panashan'];
 const customers = ['Kim Liwanag', 'Catlyn Dala', 'Julie Quizon'];
