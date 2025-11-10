@@ -261,14 +261,18 @@ function chooseAction(btn, delivered) {
 
   if (delivered) {
     deliveredBtn.classList.add('active-btn');
+    deliveredBtn.style.background = '#00d084'; // keep active color
     failedBtn.classList.remove('active-btn');
+    failedBtn.style.background = '#ccc';       // gray out unselected
     card.dataset.status = 'delivered';
     card.style.border = "4px solid #00d084";
     orderIdSpan.style.color = "#00d084";
     card.style.opacity = "0.6"; // visually mark as done
   } else {
     failedBtn.classList.add('active-btn');
+    failedBtn.style.background = '#e74c3c';    // keep active color
     deliveredBtn.classList.remove('active-btn');
+    deliveredBtn.style.background = '#ccc';    // gray out unselected
     card.dataset.status = 'failed';
     card.style.border = "4px solid #e74c3c";
     orderIdSpan.style.color = "#e74c3c";
