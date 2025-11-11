@@ -77,11 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     bodyContent.innerHTML = `
       <div style="background:white;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.1);padding:32px 16px 16px 16px;margin-top:20px;position:relative;">
-<div style="display:flex;justify-content:center;align-items:center;position:relative;transform:translateX(-25px);">
-  <h2 style="color:#005f8c;margin-bottom:16px;text-align:center;">${formattedDate}</h2>
-  <i class="fa-regular fa-calendar-days" onclick="openCalendar()" 
-     style="position:absolute;right:8px;top:2px;font-size:22px;color:#00b070;cursor:pointer;"></i>
-</div>
+        <div style="display:flex;justify-content:center;align-items:center;position:relative;transform:translateX(-25px);">
+          <h2 style="color:#005f8c;margin-bottom:16px;text-align:center;">${formattedDate}</h2>
+          <i class="fa-regular fa-calendar-days" onclick="openCalendar()" 
+            style="position:absolute;right:8px;top:2px;font-size:22px;color:#00d084;cursor:pointer;"></i>
+        </div>
         <div id="orderBar" style="display:flex;justify-content:space-between;background:#00acc1;color:white;border-radius:10px;padding:10px;font-weight:bold;text-align:center;">
           <div style="flex:1;">Customer</div>
           <div style="flex:1;">Order</div>
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div style="display:flex;justify-content:space-between;"><div>Total Items</div><div id="totalItemsAmount">0</div></div>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
-          <button id="saveReportBtn" style="background:#00b070;color:white;border:none;border-radius:20px;padding:6px 12px;cursor:pointer;font-weight:bold;">
+          <button id="saveReportBtn" style="background:#00d084;color:white;border:none;border-radius:20px;padding:6px 12px;cursor:pointer;font-weight:bold;">
             <i class="fa-solid fa-download"></i> Save As
           </button>
         </div>
@@ -117,36 +117,169 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("totalSalesAmount").textContent = `₱${totalSales}`;
     document.getElementById("totalItemsAmount").textContent = totalItems;
 
-    // Save button functionality
-    document.getElementById("saveReportBtn").addEventListener("click", () => {
-      const card = document.getElementById("bodyContent");
-      const clone = card.cloneNode(true);
-      const saveBtn = clone.querySelector("#saveReportBtn");
-      const calendarIcon = clone.querySelector(".fa-calendar-days");
-      if (saveBtn) saveBtn.style.display = "none";
-      if (calendarIcon) calendarIcon.style.display = "none";
+    // --- Create modal element ---
+    let previewModal = document.getElementById("previewModal");
+    if (!previewModal) {
+      previewModal = document.createElement("div");
+      previewModal.id = "previewModal";
+      previewModal.style.position = "fixed";
+      previewModal.style.top = "0";
+      previewModal.style.left = "0";
+      previewModal.style.width = "100%";
+      previewModal.style.height = "100%";
+      previewModal.style.background = "rgba(0,0,0,0.6)";
+      previewModal.style.display = "none";
+      previewModal.style.justifyContent = "center";
+      previewModal.style.alignItems = "center";
+      previewModal.innerHTML = `
+        <div style="background:white;border-radius:12px;max-width:400px;width:90%;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,0.3);">
+          <div id="previewContainer" style="max-height:400px;overflow:auto;margin-bottom:10px;text-align:center;"></div>
+          <input id="fileNameInput" type="text" placeholder="Enter file name..." style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <select id="fileTypeSelect" style="padding:6px;border:1px solid #ccc;border-radius:6px;">
+              <option value="jpg">JPG</option>
+              <option value="pdf">PDF</option>
+            </select>
+            <div>
+              <button id="confirmSaveBtn" style="background:#00d084;color:white;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;">Save</button>
+              <button id="cancelPreviewBtn" style="margin-left:8px;background:#ccc;color:white;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(previewModal);
+    }
 
-      const logo = document.createElement("img");
-      logo.src = "LOGO_JT.png";
-      logo.style.width = "80px";
-      logo.style.display = "block";
-      logo.style.margin = "0 auto 10px auto";
-      clone.prepend(logo);
+    // Save button functionality → show preview modal
+// --- Save button functionality ---
+document.getElementById("saveReportBtn").addEventListener("click", () => {
+  const card = document.getElementById("bodyContent");
+  const clone = card.cloneNode(true);
 
-      const tempDiv = document.createElement("div");
-      tempDiv.style.position = "fixed";
-      tempDiv.style.left = "-9999px";
-      tempDiv.appendChild(clone);
-      document.body.appendChild(tempDiv);
+  // Hide original save button and calendar icon in preview
+  const saveBtn = clone.querySelector("#saveReportBtn");
+  const calendarIcon = clone.querySelector(".fa-calendar-days");
+  if (saveBtn) saveBtn.style.display = "none";
+  if (calendarIcon) calendarIcon.style.display = "none";
 
-      html2canvas(clone, { scale: 2, useCORS: true }).then((canvas) => {
+  // --- Create dim overlay ---
+  let dimOverlay = document.getElementById("dimOverlay");
+  if (!dimOverlay) {
+    dimOverlay = document.createElement("div");
+    dimOverlay.id = "dimOverlay";
+    Object.assign(dimOverlay.style, {
+      position: "fixed",
+      top: "0", left: "0",
+      width: "100%", height: "100%",
+      background: "rgba(0,0,0,0.4)",
+      zIndex: "1000",
+      display: "none"
+    });
+    document.body.appendChild(dimOverlay);
+  }
+  dimOverlay.style.display = "block";
+
+  // --- Bottom modal ---
+  let bottomModal = document.getElementById("bottomSaveModal");
+  if (!bottomModal) {
+    bottomModal = document.createElement("div");
+    bottomModal.id = "bottomSaveModal";
+    Object.assign(bottomModal.style, {
+      position: "fixed",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      background: "white",
+      borderRadius: "12px",
+      maxWidth: "400px",
+      width: "90%",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
+      padding: "16px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "12px",
+      zIndex: "1001"
+    });
+
+    bottomModal.innerHTML = `
+      <div id="modalPreviewContainer" style="max-height:300px; overflow:auto; margin-bottom:10px;"></div>
+      <input id="modalFileName" type="text" placeholder="Enter file name..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <select id="modalFileType" style="padding:6px;border:1px solid #ccc;border-radius:6px;font-size:16px;">
+          <option value="jpg">JPG</option>
+          <option value="pdf">PDF</option>
+        </select>
+        <div>
+          <button id="modalConfirmSave" style="background:#00d084;color:white;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:16px;font-weight:bold;">Save</button>
+          <button id="modalCancel" style="margin-left:8px;background:#ccc;color:black;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:16px;font-weight:bold;">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(bottomModal);
+  }
+
+  // Add cloned card to modal preview
+  const previewContainer = document.getElementById("modalPreviewContainer");
+  previewContainer.innerHTML = "";
+  previewContainer.appendChild(clone);
+
+  bottomModal.style.display = "flex";
+
+  // Cancel button
+  document.getElementById("modalCancel").onclick = () => {
+    bottomModal.style.display = "none";
+    dimOverlay.style.display = "none";
+  };
+
+  // Confirm Save
+  document.getElementById("modalConfirmSave").onclick = () => {
+    const fileName = document.getElementById("modalFileName").value || "Sales_Report";
+    const fileType = document.getElementById("modalFileType").value;
+
+    html2canvas(clone, { scale: 2, useCORS: true }).then((canvas) => {
+      if (fileType === "jpg") {
         const link = document.createElement("a");
-        link.download = "Sales_Report.jpg";
+        link.download = `${fileName}.jpg`;
         link.href = canvas.toDataURL("image/jpeg", 1.0);
         link.click();
-        document.body.removeChild(tempDiv);
+      } else {
+        const pdf = new jspdf.jsPDF("p", "mm", "a4");
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+        pdf.save(`${fileName}.pdf`);
+      }
+
+      // Popup "Saved to device"
+      const popup = document.createElement("div");
+      popup.textContent = "Saved to device";
+      Object.assign(popup.style, {
+        position: "fixed",
+        top: "75%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "#00d084",
+        color: "white",
+        padding: "10px 20px",
+        borderRadius: "10px",
+        boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+        zIndex: "2000",
+        opacity: "0",
+        transition: "opacity 0.3s"
       });
+      document.body.appendChild(popup);
+      setTimeout(()=>{ popup.style.opacity="1"; }, 50);
+      setTimeout(()=>{
+        popup.style.opacity="0";
+        setTimeout(()=>{ popup.remove(); }, 300);
+      }, 1500);
+
+      bottomModal.style.display = "none";
+      dimOverlay.style.display = "none";
     });
+  };
+});
   }
 
   // --- Show today's orders first ---
