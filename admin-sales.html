@@ -90,7 +90,11 @@
   background: #00acc1;
 }
 </style>
+
+<!-- Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </head>
 <body>
 
@@ -102,23 +106,18 @@
       <span>Water Refilling Station</span>
     </div>
     <div class="drawer-menu">
-  <div class="drawer-menu">
-    <button onclick="navigateTo('admin-dashboard.html', this)">
-      <i class="fa-solid fa-chart-line" style="margin-right: 10px;"></i>Dashboard
-    </button>
-
-    <button onclick="navigateTo('admin-sales.html', this)" class="active">
-      <i class="fa-solid fa-receipt" style="margin-right: 10px;"></i>Sales
-    </button>
-
-    <button onclick="navigateTo('admin-accounts.html', this)">
-      <i class="fa-solid fa-user" style="margin-right: 10px;"></i>Accounts
-    </button>
-
-    <button onclick="navigateTo('admin-inventory.html', this)">
-      <i class="fa-solid fa-boxes-stacked" style="margin-right: 10px;"></i>Inventory
-    </button>
-  </div>
+      <button onclick="navigateTo('admin-dashboard.html', this)">
+        <i class="fa-solid fa-chart-line" style="margin-right: 10px;"></i>Dashboard
+      </button>
+      <button onclick="navigateTo('admin-sales.html', this)" class="active">
+        <i class="fa-solid fa-receipt" style="margin-right: 10px;"></i>Sales
+      </button>
+      <button onclick="navigateTo('admin-accounts.html', this)">
+        <i class="fa-solid fa-user" style="margin-right: 10px;"></i>Accounts
+      </button>
+      <button onclick="navigateTo('admin-inventory.html', this)">
+        <i class="fa-solid fa-boxes-stacked" style="margin-right: 10px;"></i>Inventory
+      </button>
     </div>
   </div>
   <div class="drawer-bottom">
@@ -188,7 +187,6 @@
   </div>
 </div>
 
-<!-- Scripts -->
 <script src="sound.js"></script>
 <script src="admin-sales-info.js"></script>
 <script>
@@ -200,7 +198,6 @@ hamburger.addEventListener("click", ()=>{
   drawer.classList.toggle("open");
   overlay.classList.toggle("show");
 });
-
 overlay.addEventListener("click", ()=>{
   drawer.classList.remove("open");
   overlay.classList.remove("show");
@@ -223,6 +220,5 @@ function navigateTo(url, button=null){
   setTimeout(()=>{ window.location.href=url; }, 400);
 }
 </script>
-<script src="admin-sales-info.js"></script>
 </body>
 </html>
