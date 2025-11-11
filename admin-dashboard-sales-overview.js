@@ -1,114 +1,76 @@
 // ============================================
-// Admin Dashboard - Sales Overview Cards (Dropdown Below Title)
+// Admin Dashboard - Sales Overview Cards
+// (Realistic numbers based on daily and weekly totals)
 // ============================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  const content = document.querySelector(".content");
   const chartContainer = document.querySelector(".chart-container");
 
-  // Create wrapper that matches chart style
+  // --- Create overview container ---
   const overviewContainer = document.createElement("div");
   overviewContainer.classList.add("overview-container");
   overviewContainer.style.width = "90%";
   overviewContainer.style.maxWidth = "600px";
-  overviewContainer.style.background = "white";
-  overviewContainer.style.margin = "20px auto";
-  overviewContainer.style.padding = "20px";
-  overviewContainer.style.borderRadius = "15px";
-  overviewContainer.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
+  overviewContainer.style.margin = "20px auto 40px auto"; // spacing above chart
   overviewContainer.style.display = "flex";
   overviewContainer.style.flexDirection = "column";
-  overviewContainer.style.alignItems = "center";
   overviewContainer.style.gap = "16px";
 
-  chartContainer.parentNode.insertBefore(overviewContainer, chartContainer);
+  // Insert overview container above the chart
+  content.insertBefore(overviewContainer, chartContainer);
 
-  // Sales data with believable totals
+  // --- Sales data ---
   const salesData = {
-    monthly: {
-      title: "Monthly Sales",
-      totals: {
-        "January": 78000,
-        "February": 83000,
-        "March": 91000,
-        "April": 87000,
-        "May": 94000,
-        "June": 87000,
-        "July": 88000,
-        "August": 92000,
-        "September": 86000,
-        "October": 90000,
-        "November": 95000,
-        "December": 99000
-      },
-      selected: "June",
+    daily: {
+      title: "Daily Sales",
+      totals: { Monday: 2500, Tuesday: 1800, Wednesday: 3200, Thursday: 2900, Friday: 4100, Saturday: 3700, Sunday: 4600 },
+      selected: "Friday",
     },
     weekly: {
       title: "Weekly Sales",
-      totals: {
-        "1st Week": 21000,
-        "2nd Week": 24000,
-        "3rd Week": 19500,
-        "4th Week": 23000
-      },
-      selected: "4th Week",
+      totals: { "Week 1": 24500, "Week 2": 26300, "Week 3": 27100, "Week 4": 25400 },
+      selected: "Week 4",
     },
-    daily: {
-      title: "Daily Sales",
-      totals: {
-        "Monday": 3200,
-        "Tuesday": 3400,
-        "Wednesday": 3100,
-        "Thursday": 3300,
-        "Friday": 3600,
-        "Saturday": 4100,
-        "Sunday": 3800
+    monthly: {
+      title: "Monthly Sales",
+      totals: { 
+        January: 98000, February: 101000, March: 95000, April: 104000, May: 107000, June: 110000,
+        July: 113000, August: 117000, September: 119000, October: 122000, November: 126000, December: 130000
       },
-      selected: "Friday",
-    },
+      selected: "June",
+    }
   };
 
-  // Create cards
   Object.keys(salesData).forEach((key) => {
     const { title, totals, selected } = salesData[key];
 
+    // --- Card wrapper ---
     const card = document.createElement("div");
-    card.classList.add("sales-card");
     card.style.background = "#f9f9f9";
     card.style.borderRadius = "12px";
     card.style.padding = "16px";
-    card.style.width = "100%";
-    card.style.textAlign = "center";
     card.style.boxShadow = "0 1px 4px rgba(0,0,0,0.1)";
-    card.style.transition = "transform 0.2s, box-shadow 0.2s";
-    card.style.cursor = "pointer";
+    card.style.textAlign = "center";
 
-    card.addEventListener("mouseenter", () => {
-      card.style.transform = "translateY(-2px)";
-      card.style.boxShadow = "0 3px 8px rgba(0,0,0,0.15)";
-    });
-    card.addEventListener("mouseleave", () => {
-      card.style.transform = "translateY(0)";
-      card.style.boxShadow = "0 1px 4px rgba(0,0,0,0.1)";
-    });
-
-    // --- Title ---
-    const titleEl = document.createElement("h3");
+    // --- Card title ---
+    const titleEl = document.createElement("h2");
     titleEl.textContent = title;
-    titleEl.style.color = "#0077b6";
+    titleEl.style.color = "#00acc1";
     titleEl.style.marginBottom = "8px";
-    titleEl.style.fontSize = "1rem";
+    titleEl.style.marginBottom = "8px";
     titleEl.style.fontWeight = "bold";
-    titleEl.style.textAlign = "center";
+    card.appendChild(titleEl);
 
     // --- Dropdown ---
     const dropdown = document.createElement("select");
-    dropdown.style.width = "70%";
+    dropdown.style.width = "100%";
     dropdown.style.padding = "8px";
-    dropdown.style.borderRadius = "20px";
+    dropdown.style.borderRadius = "10px";
     dropdown.style.marginBottom = "8px";
-    dropdown.style.border = "2px solid #b2ebf2";
+    dropdown.style.border = "1px solid #00acc1";
     dropdown.style.fontSize = "0.95rem";
-    dropdown.style.color = "#007c91";
+    dropdown.style.color = "#005f8c";
     dropdown.style.background = "#fff";
     dropdown.style.fontWeight = "600";
     dropdown.style.cursor = "pointer";
@@ -122,33 +84,52 @@ document.addEventListener("DOMContentLoaded", () => {
       if (item === selected) opt.selected = true;
       dropdown.appendChild(opt);
     });
+    card.appendChild(dropdown);
 
-    // --- Total ---
+    // --- Value display ---
     const valueEl = document.createElement("div");
     valueEl.textContent = `₱${totals[selected].toLocaleString()}`;
-    valueEl.style.fontSize = "1.8rem";
+    valueEl.style.fontSize = "2.2rem";
     valueEl.style.fontWeight = "bold";
-    valueEl.style.color = "#0097a7";
-    valueEl.style.textAlign = "center";
+    valueEl.style.color = "#00b070"; // updated color
+    card.appendChild(valueEl);
 
-    // --- Event: change only this card's total ---
+    // --- Update value when dropdown changes ---
     dropdown.addEventListener("change", () => {
       valueEl.textContent = `₱${totals[dropdown.value].toLocaleString()}`;
+      if (typeof playClick === "function") playClick();
     });
 
-    // Assemble card
-    card.appendChild(titleEl);
-    card.appendChild(dropdown);
-    card.appendChild(valueEl);
+    // --- Append card ---
     overviewContainer.appendChild(card);
   });
-});
 
-li.addEventListener("click", (e) => {
-  e.stopPropagation();
-  selectedEl.textContent = item;
-  dropdown.style.display = "none";
+  // --- Optional: Update existing custom dropdowns if present ---
+  document.querySelectorAll(".custom-dropdown").forEach((dropdown) => {
+    const selectedEl = dropdown.querySelector(".selected");
+    const dropdownList = dropdown.querySelector(".dropdown");
 
-  // Play click sound
-  if (typeof playClick === "function") playClick();
+    // Toggle dropdown
+    selectedEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isVisible = dropdownList.style.display === "block";
+      document.querySelectorAll(".dropdown").forEach((d) => (d.style.display = "none"));
+      dropdownList.style.display = isVisible ? "none" : "block";
+    });
+
+    // Dropdown item click
+    dropdown.querySelectorAll(".dropdown li").forEach((li) => {
+      li.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectedEl.textContent = li.textContent;
+        dropdownList.style.display = "none";
+        if (typeof playClick === "function") playClick();
+      });
+    });
+  });
+
+  // Close dropdowns when clicking outside
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".dropdown").forEach((d) => (d.style.display = "none"));
+  });
 });
