@@ -370,6 +370,8 @@ window.onclick = function(event) {
   const modal = document.getElementById('logoutModal');
   if (event.target === modal) closeLogoutModal();
 }
+// --- Initialize chart with default view ---
+updateChart("monthly"); // <- This ensures nextBtn shows at first load
   </script>
 
   <!-- External Chart JS -->
