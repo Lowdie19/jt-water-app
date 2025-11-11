@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   bodyContent.innerHTML = `
     <div style="background:white; border-radius:14px; box-shadow:0 3px 10px rgba(0,0,0,0.1); padding:32px 16px 16px 16px; margin-top:20px;">
-      <h2 style="color:#005f8c; margin-bottom:10px; text-align:center;">${formattedDate}</h2><br>
+      <h2 style="color:#005f8c; margin-bottom:10px; text-align:center;">${formattedDate}</h2>
 
       <!-- Customer / Order / Total Bar -->
       <div id="orderBar" style="display:flex; justify-content:space-between; background:#00acc1; color:white; border-radius:10px; padding:10px; font-weight:bold; text-align:center;">
@@ -44,6 +44,13 @@ document.addEventListener("DOMContentLoaded", () => {
     { customer: "Camille", orderQty: 3, orderType: "Cylindrical", total: 90 },
     { customer: "Bea", orderQty: 5, orderType: "Rectangular", total: 150 },
     { customer: "Kim", orderQty: 2, orderType: "Cylindrical", total: 60 },
+    { customer: "Luis", orderQty: 4, orderType: "Cylindrical", total: 120 },
+    { customer: "Anna", orderQty: 6, orderType: "Rectangular", total: 180 },
+    { customer: "Mark", orderQty: 3, orderType: "Cylindrical", total: 90 },
+    { customer: "Judy", orderQty: 2, orderType: "Rectangular", total: 60 },
+    { customer: "Peter", orderQty: 5, orderType: "Cylindrical", total: 150 },
+    { customer: "Sofia", orderQty: 4, orderType: "Rectangular", total: 120 },
+    { customer: "Gina", orderQty: 3, orderType: "Cylindrical", total: 90 }
   ];
 
   const sampleOrdersContainer = document.getElementById("sampleOrders");
@@ -69,12 +76,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Save button functionality
   document.getElementById("saveReportBtn").addEventListener("click", () => {
-    const reportDiv = bodyContent;
-    html2canvas(reportDiv).then((canvas) => {
+    const card = document.getElementById("bodyContent");
+
+    // Clone and prepare for export
+    const clone = card.cloneNode(true);
+    const saveBtn = clone.querySelector("#saveReportBtn");
+    if(saveBtn) saveBtn.style.display = "none";
+
+    const logo = document.createElement("img");
+    logo.src = "LOGO_JT.png";
+    logo.style.width = "80px";
+    logo.style.display = "block";
+    logo.style.margin = "0 auto 10px auto";
+    clone.prepend(logo);
+
+    const tempDiv = document.createElement("div");
+    tempDiv.style.position = "fixed";
+    tempDiv.style.left = "-9999px";
+    tempDiv.appendChild(clone);
+    document.body.appendChild(tempDiv);
+
+    html2canvas(clone, { scale: 2, useCORS: true }).then((canvas) => {
       const link = document.createElement("a");
       link.download = "Sales_Report.jpg";
       link.href = canvas.toDataURL("image/jpeg", 1.0);
       link.click();
+      document.body.removeChild(tempDiv);
     });
   });
 });
