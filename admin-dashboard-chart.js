@@ -1,16 +1,55 @@
 // ============================================
-// Admin Dashboard - Sales Chart (Next Button with Toggle Arrow)
+// Admin Dashboard - Sales Cards & Chart
 // ============================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  // ------------------------
+  // Sales Cards
+  // ------------------------
+  const cards = document.querySelectorAll(".sales-card");
+
+  const dailyValues = [2500, 1800, 3200, 2900, 4100, 3700, 4600];
+  const weeklyValues = [25600, 26800, 27400, 26100, 28900, 29700, 28300, 31000];
+  const monthlyValues = [98000,101000,95000,104000,107000,110000,113000,117000,119000,122000,126000,130000];
+
+  cards.forEach(card => {
+    const title = card.querySelector("h3").textContent.trim();
+    const valueEl = card.querySelector(".sales-value");
+    const options = card.querySelectorAll(".dropdown li");
+
+    valueEl.style.color = "#00b070";
+
+    // ------------------------
+    // Show first value on load
+    // ------------------------
+    if (title.includes("Daily")) valueEl.textContent = `₱${dailyValues[0].toLocaleString()}`;
+    else if (title.includes("Weekly")) valueEl.textContent = `₱${weeklyValues[0].toLocaleString()}`;
+    else if (title.includes("Monthly")) valueEl.textContent = `₱${monthlyValues[0].toLocaleString()}`;
+
+    options.forEach((li, i) => {
+      li.addEventListener("click", () => {
+        let value = 0;
+        if (title.includes("Daily")) value = dailyValues[i];
+        else if (title.includes("Weekly")) value = weeklyValues[i];
+        else if (title.includes("Monthly")) value = monthlyValues[i];
+
+        valueEl.textContent = `₱${value.toLocaleString()}`;
+        if (typeof playClick === "function") playClick();
+      });
+    });
+  });
+
+  // ------------------------
+  // Sales Chart
+  // ------------------------
   const chartContainer = document.querySelector(".chart-container");
   const title = chartContainer.querySelector("h2");
   const canvas = document.getElementById("salesChart");
 
   chartContainer.style.position = "relative";
-  chartContainer.style.paddingBottom = "40px"; // extra space at bottom
+  chartContainer.style.paddingBottom = "40px";
 
-  // --- Wrap title + time frame buttons ---
+  // Header + buttons wrapper
   const btnContainer = document.createElement("div");
   btnContainer.style.display = "flex";
   btnContainer.style.gap = "8px";
@@ -25,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   headerWrapper.appendChild(btnContainer);
   chartContainer.insertBefore(headerWrapper, canvas);
 
-  // --- Time frame buttons ---
+  // Time frame buttons
   const timeFrames = ["Daily", "Monthly", "Yearly"];
   const buttons = {};
   timeFrames.forEach((frame) => {
@@ -33,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.textContent = frame;
     styleButton(btn, frame === "Monthly");
     btn.addEventListener("click", () => {
-      Object.values(buttons).forEach((b) => styleButton(b, false));
+      Object.values(buttons).forEach(b => styleButton(b, false));
       styleButton(btn, true);
       updateChart(frame.toLowerCase());
       if (typeof playClick === "function") playClick();
@@ -42,9 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
     btnContainer.appendChild(btn);
   });
 
-  // --- Next button ---
+  // Next button
   const nextBtn = document.createElement("button");
-  nextBtn.textContent = "›"; // start with >
+  nextBtn.textContent = "›";
   nextBtn.style.border = "none";
   nextBtn.style.borderRadius = "50%";
   nextBtn.style.padding = "6px 12px";
@@ -53,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   nextBtn.style.color = "white";
   nextBtn.style.background = "#00acc1";
   nextBtn.style.fontWeight = "bold";
-  nextBtn.style.display = "block"; 
+  nextBtn.style.display = "block";
   nextBtn.style.transition = "0.2s";
   nextBtn.style.position = "absolute";
   nextBtn.style.bottom = "10px";
@@ -65,14 +104,13 @@ document.addEventListener("DOMContentLoaded", () => {
   nextBtn.addEventListener("click", () => {
     showingSecondHalf = !showingSecondHalf;
     updateChart("monthly");
-    // Toggle arrow
     nextBtn.textContent = showingSecondHalf ? "‹" : "›";
     if (typeof playClick === "function") playClick();
   });
 
   chartContainer.appendChild(nextBtn);
 
-  // --- Chart setup ---
+  // Chart.js setup
   const ctx = canvas.getContext("2d");
   const chart = new Chart(ctx, {
     type: "bar",
@@ -87,27 +125,42 @@ document.addEventListener("DOMContentLoaded", () => {
     chart.data.datasets[0].label = newData.datasets[0].label;
     chart.update();
     nextBtn.style.display = type === "monthly" ? "block" : "none";
-    // Reset arrow when switching to monthly
     if (type === "monthly") nextBtn.textContent = showingSecondHalf ? "‹" : "›";
   }
 
   function getChartData(type) {
     if (type === "daily") {
       return {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        datasets: [{ label: "Daily Sales (₱)", data: [2500, 1800, 3200, 2900, 4100, 3700, 4600], backgroundColor: "#00b070", borderRadius: 8 }],
+        labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+        datasets: [{
+          label: "Daily Sales (₱)",
+          data: dailyValues,
+          backgroundColor: "#00b070",
+          borderRadius: 8
+        }]
       };
     } else if (type === "monthly") {
-      const months = showingSecondHalf ? ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-      const values = showingSecondHalf ? [19500, 22500, 21000, 24000, 25000, 28000] : [12000, 15000, 9000, 18000, 22000, 17000];
+      const months = showingSecondHalf ? ["Jul","Aug","Sep","Oct","Nov","Dec"] : ["Jan","Feb","Mar","Apr","May","Jun"];
+      const values = showingSecondHalf ? monthlyValues.slice(6,12) : monthlyValues.slice(0,6);
       return {
         labels: months,
-        datasets: [{ label: "Monthly Sales (₱)", data: values, backgroundColor: "#00b070", borderRadius: 8 }],
+        datasets: [{
+          label: "Monthly Sales (₱)",
+          data: values,
+          backgroundColor: "#00b070",
+          borderRadius: 8
+        }]
       };
     } else if (type === "yearly") {
+      const yearly = [95000, 110000, 125000, 145000, 170000];
       return {
-        labels: ["2021", "2022", "2023", "2024", "2025"],
-        datasets: [{ label: "Yearly Sales (₱)", data: [95000, 110000, 125000, 145000, 170000], backgroundColor: "#00b070", borderRadius: 8 }],
+        labels: ["2021","2022","2023","2024","2025"],
+        datasets: [{
+          label: "Yearly Sales (₱)",
+          data: yearly,
+          backgroundColor: "#00b070",
+          borderRadius: 8
+        }]
       };
     }
   }
@@ -116,10 +169,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return {
       responsive: true,
       scales: {
-        y: { beginAtZero: true, ticks: { color: "#0077b6", font: { size: 14 } } },
-        x: { ticks: { color: "#0077b6", font: { size: 14 } } },
+        y: { beginAtZero: true, ticks: { color: "#005f8c", font: { size: 14 } } },
+        x: { ticks: { color: "#005f8c", font: { size: 14 } } },
       },
-      plugins: { legend: { labels: { color: "#0077b6" } } },
+      plugins: { legend: { labels: { color: "#005f8c" } } },
     };
   }
 
@@ -132,13 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.style.color = "white";
     btn.style.background = active ? "#00acc1" : "#ccc";
   }
-});
-li.addEventListener("click", (e) => {
-  e.stopPropagation();
-  selectedEl.textContent = item;
-  dropdown.style.display = "none";
 
-  // Play click sound
-  if (typeof playClick === "function") playClick();
+  // Initialize chart to show Monthly first
+  updateChart("monthly");
 });
-
