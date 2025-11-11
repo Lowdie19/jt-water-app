@@ -72,7 +72,25 @@
   .calendar-days div:hover { background:#00d084; color:white; }
   .close-btn { margin-top:12px; padding:6px 12px; border:none; border-radius:20px; background:#ccc; cursor:pointer; }
   .close-btn:hover { background:#aaa; }
+
+.sales-tab {
+  background: #ccc;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+.sales-tab:hover {
+  background: #a1a1a1;
+}
+.sales-tab.active {
+  background: #00acc1;
+}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -172,7 +190,7 @@
 
 <!-- Scripts -->
 <script src="sound.js"></script>
-<script src="admin-sales-receipt.js"></script>
+<script src="admin-sales-info.js"></script>
 <script>
 const drawer = document.getElementById("drawer");
 const overlay = document.getElementById("overlay");
@@ -205,6 +223,6 @@ function navigateTo(url, button=null){
   setTimeout(()=>{ window.location.href=url; }, 400);
 }
 </script>
-<script src="admin-sales-receipt.js"></script>
+<script src="admin-sales-info.js"></script>
 </body>
 </html>
