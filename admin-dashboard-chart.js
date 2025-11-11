@@ -95,19 +95,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (type === "daily") {
       return {
         labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        datasets: [{ label: "Daily Sales (₱)", data: [2500, 1800, 3200, 2900, 4100, 3700, 4600], backgroundColor: "#0097a7", borderRadius: 8 }],
+        datasets: [{ label: "Daily Sales (₱)", data: [2500, 1800, 3200, 2900, 4100, 3700, 4600], backgroundColor: "#00b070", borderRadius: 8 }],
       };
     } else if (type === "monthly") {
       const months = showingSecondHalf ? ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
       const values = showingSecondHalf ? [19500, 22500, 21000, 24000, 25000, 28000] : [12000, 15000, 9000, 18000, 22000, 17000];
       return {
         labels: months,
-        datasets: [{ label: "Monthly Sales (₱)", data: values, backgroundColor: "#0097a7", borderRadius: 8 }],
+        datasets: [{ label: "Monthly Sales (₱)", data: values, backgroundColor: "#00b070", borderRadius: 8 }],
       };
     } else if (type === "yearly") {
       return {
         labels: ["2021", "2022", "2023", "2024", "2025"],
-        datasets: [{ label: "Yearly Sales (₱)", data: [95000, 110000, 125000, 145000, 170000], backgroundColor: "#0097a7", borderRadius: 8 }],
+        datasets: [{ label: "Yearly Sales (₱)", data: [95000, 110000, 125000, 145000, 170000], backgroundColor: "#00b070", borderRadius: 8 }],
       };
     }
   }
@@ -141,3 +141,4 @@ li.addEventListener("click", (e) => {
   // Play click sound
   if (typeof playClick === "function") playClick();
 });
+
