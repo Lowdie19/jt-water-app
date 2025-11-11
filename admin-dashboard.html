@@ -266,7 +266,14 @@
   transition: 0.2s;
 }
 .modal-close:hover { background: #00b070; }
-  </style>
+</style>
+
+<style>
+  body.fade-out {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+  }
+</style>
 
   <!-- Font Awesome + Chart.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -283,12 +290,25 @@
         <span>Water Refilling Station</span>
       </div>
 
-      <div class="drawer-menu">
-        <button class="active">Dashboard</button>
-        <button>Sales</button>
-        <button>Accounts</button>
-        <button>Inventory</button>
-      </div>
+<div class="drawer-menu">
+ <div class="drawer-menu">
+  <button onclick="navigateTo('admin-dashboard.html', this)" class="active">
+    <i class="fa-solid fa-chart-line" style="margin-right: 10px;"></i>Dashboard
+  </button>
+
+  <button onclick="navigateTo('admin-sales.html', this)">
+    <i class="fa-solid fa-receipt" style="margin-right: 10px;"></i>Sales
+  </button>
+
+  <button onclick="navigateTo('admin-accounts.html', this)">
+    <i class="fa-solid fa-user" style="margin-right: 10px;"></i>Accounts
+  </button>
+
+  <button onclick="navigateTo('admin-inventory.html', this)">
+    <i class="fa-solid fa-boxes-stacked" style="margin-right: 10px;"></i>Inventory
+  </button>
+</div>
+</div>
     </div>
 
     <div class="drawer-bottom">
@@ -371,8 +391,26 @@ window.onclick = function(event) {
   if (event.target === modal) closeLogoutModal();
 }
 // --- Initialize chart with default view ---
-updateChart("monthly"); // <- This ensures nextBtn shows at first load
+updateChart("monthly"); // <- This ensures nextBtn shows at first load"
+
+
+
+function navigateTo(url, button) {
+  // Highlight the clicked button
+  const buttons = document.querySelectorAll(".drawer-menu button");
+  buttons.forEach(btn => btn.classList.remove("active"));
+  button.classList.add("active");
+
+  // Disable all buttons temporarily to show highlight
+  buttons.forEach(btn => btn.disabled = true);
+
+  // Wait 400ms before navigating
+  setTimeout(() => {
+    window.location.href = url;
+  }, 400);
+}
   </script>
+
 
   <!-- External Chart JS -->
 <script src="admin-dashboard-chart.js"></script>
