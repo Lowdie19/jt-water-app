@@ -213,7 +213,7 @@ body {
 <body>
 
 <div class="top-bar">
-  <h1>My Orders</h1>
+  <h1 id="secretOrdersBtn" style="cursor:pointer;">My Orders</h1>
 </div>
 
 <div class="body-content">
@@ -471,6 +471,43 @@ checkEmptyTabs();
 
 // Run after auto status updates to refresh messages
 setInterval(checkEmptyTabs, 1000);
+
+//secret button hold 3 sec for deleting Localstorage orders
+const secretBtn = document.getElementById('secretOrdersBtn');
+let holdTimer;
+
+secretBtn.addEventListener('mousedown', () => {
+  // Start 3-second hold timer
+  holdTimer = setTimeout(() => {
+    localStorage.removeItem('orders');
+    console.log("All saved orders deleted!");
+    location.reload(); // refresh page to reflect changes
+  }, 3000);
+});
+
+secretBtn.addEventListener('mouseup', () => {
+  // Cancel timer if mouse released early
+  clearTimeout(holdTimer);
+});
+
+secretBtn.addEventListener('mouseleave', () => {
+  // Cancel if mouse leaves element before 3 seconds
+  clearTimeout(holdTimer);
+});
+
+// For mobile/touch devices
+secretBtn.addEventListener('touchstart', () => {
+  holdTimer = setTimeout(() => {
+    localStorage.removeItem('orders');
+    console.log("All saved orders deleted!");
+    location.reload();
+  }, 3000);
+});
+
+secretBtn.addEventListener('touchend', () => {
+  clearTimeout(holdTimer);
+});
+
 </script>
 <script src="sound.js"></script>
 </body>
