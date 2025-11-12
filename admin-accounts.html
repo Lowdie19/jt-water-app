@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JT Water Refilling - Admin Accounts</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+/* Reset & Body */
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+body { background: linear-gradient(to bottom, #b2ebf2, #81d4fa); min-height:100vh; overflow-x:hidden; }
+@media (min-width: 1024px) { body { padding: 0 30vw; } }
+
+/* Top Bar */
+.top-bar { position:fixed; top:0; left:0; right:0; height:60px; background:white; border-bottom:1px solid #ccc; display:flex; align-items:center; justify-content:space-between; padding:0 15px; z-index:1000; }
+.top-left { display:flex; align-items:center; gap:10px; }
+.hamburger { font-size:22px; cursor:pointer; padding:8px; border-radius:8px; transition:background 0.2s; }
+.hamburger:hover { background:#f1f1f1; }
+.top-left img { height:35px; }
+.top-left h1 { font-family:"Brush Script MT",cursive; color:#0097a7; font-size:22px; }
+
+/* Drawer */
+.drawer { position:fixed; top:0; left:-260px; width:260px; height:100%; background:white; box-shadow:2px 0 10px rgba(0,0,0,0.2); border-right:1px solid #ccc; transition:left 0.3s ease; z-index:999; display:flex; flex-direction:column; justify-content:space-between; padding:20px; }
+.drawer.open { left:0; }
+.drawer-header { display:flex; align-items:center; gap:10px; padding-bottom:10px; }
+.drawer-header img { width:40px; height:40px; }
+.drawer-header span { font-weight:bold; color:#00acc1; }
+.drawer-menu { margin-top:20px; display:flex; flex-direction:column; gap:12px; }
+.drawer-menu button { background:#00acc1; color:white; border:none; border-radius:20px; padding:10px 25px; text-align:left; font-size:16px; cursor:pointer; transition:background 0.3s; }
+.drawer-menu button:hover { background:#005f8c; }
+.drawer-menu button.active { background:#044a6a; }
+.drawer-profile { border-top:1px solid #ccc; padding-top:15px; display:flex; align-items:center; gap:12px; }
+.drawer-profile img { width:70px; height:70px; border-radius:50%; object-fit:cover; border:3px solid #00acc1; }
+.drawer-profile-info { display:flex; flex-direction:column; font-size:16px; color:#8a8a8a; }
+.drawer-profile-info b { font-size:18px; color:#00acc1; }
+.drawer-bottom { display:flex; flex-direction:column; justify-content:space-between; }
+.logout-btn { background:#00d084; color:white; border:none; border-radius:20px; padding:10px 25px; text-align:left; font-size:16px; cursor:pointer; transition:background 0.3s; margin-top:25px; }
+.logout-btn:hover { background:#00b070; }
+
+/* Overlay & Modal */
+.overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.3); opacity:0; visibility:hidden; transition:opacity 0.3s; z-index:998; }
+.overlay.show { opacity:1; visibility:visible; }
+.modal { position:fixed; inset:0; background: rgba(0,0,0,0.4); display:none; justify-content:center; align-items:center; z-index:999; padding:16px; }
+.modal-content { background:white; border-radius:12px; width:90%; max-width:360px; padding:20px; display:flex; flex-direction:column; align-items:center; gap:12px; box-shadow:0 6px 20px rgba(0,0,0,0.25); }
+.modal-content h2 { font-size:22px; color:black; }
+.modal-content p { font-size:16px; text-align:center; }
+.modal-close { background:#00d084; color:white; border:none; padding:8px 20px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:bold; transition:0.2s; }
+.modal-close:hover { background:#00b070; }
+
+/* ============================ Accounts Page ============================ */
+.body-content { margin-top:70px; margin-bottom:70px; padding:0 16px; text-align:center; }
+
+/* Filter Buttons */
+.order-filter { display:flex; justify-content:center; gap:16px; margin-bottom:20px; }
+.order-filter button { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 12px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; background:white; color:#00acc1; font-size:14px; transition:all 0.2s ease; }
+.order-filter button.active, .order-filter button:focus, .order-filter button:active { background:#00d084; color:white; outline:none; transform:scale(1.05); }
+
+/* Tables */
+.table-container { width:100%; overflow-x:auto; background:white; border-radius:8px; box-shadow:0 3px 8px rgba(0,0,0,0.1); margin-bottom:30px; }
+.accounts-table { width:100%; border-collapse:collapse; min-width:600px; }
+.accounts-table th, .accounts-table td { text-align:left; padding:12px 15px; border-bottom:1px solid #ddd; font-size:14px; white-space:nowrap; }
+.accounts-table th { background-color:#f5f5f5; color:#333; }
+.accounts-table tr:hover { background-color:#f1f1f1; }
+
+/* Action Buttons */
+.Action-btn { color:white; border:none; padding:6px 12px; border-radius:6px; font-size:13px; font-weight:bold; cursor:pointer; transition:0.2s; }
+.Action-btn.accept { background:#00d084; }
+.Action-btn.accept:hover { background:#00b070; }
+.Action-btn.delete { background:#e23737; }
+.Action-btn.delete:hover { background:#b71c1c; }
+
+/* Mobile */
+@media screen and (max-width:600px) { 
+  .accounts-table { min-width:unset; font-size:13px; }
+  .accounts-table th, .accounts-table td { padding:10px; white-space:normal; }
+  .order-filter { flex-direction:column; gap:10px; }
+}
+
+.fade-out-row {
+  opacity: 0;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  transition: opacity 0.4s ease, height 0.4s ease, padding 0.4s ease;
+}
+</style>
+</head>
+<body>
+
+<!-- Action Confirmation Modal -->
+<div id="actionModal" class="modal">
+  <div class="modal-content">
+    <h2 id="actionModalTitle">Confirm Action</h2>
+    <p id="actionModalMessage">Are you sure you want to delete this account?</p>
+    <div style="display:flex; gap:16px;">
+      <button class="modal-close" id="confirmActionBtn">Yes</button>
+      <button class="modal-close" onclick="closeActionModal()">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer -->
+<div class="drawer" id="drawer">
+  <div>
+    <div class="drawer-header">
+      <img src="JT_LOGO.png" alt="Logo" />
+      <span>Water Refilling Station</span>
+    </div>
+
+    <div class="drawer-menu">
+      <button onclick="navigateTo('admin-dashboard.html', this)">
+        <i class="fa-solid fa-chart-line" style="margin-right: 10px;"></i>Dashboard
+      </button>
+      <button onclick="navigateTo('admin-sales.html', this)">
+        <i class="fa-solid fa-receipt" style="margin-right: 10px;"></i>Sales
+      </button>
+      <button onclick="navigateTo('admin-accounts.html', this)" class="active">
+        <i class="fa-solid fa-user" style="margin-right: 10px;"></i>Accounts
+      </button>
+      <button onclick="navigateTo('admin-inventory.html', this)">
+        <i class="fa-solid fa-boxes-stacked" style="margin-right: 10px;"></i>Inventory
+      </button>
+    </div>
+  </div>
+
+  <div class="drawer-bottom">
+    <div class="drawer-profile">
+      <img src="Profile-admin.jpg" alt="Admin Profile" />
+      <div class="drawer-profile-info">
+        <b>Gina Ballares</b>
+        <span>Administrator</span>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="openLogoutModal()">
+      <i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>
+      Log Out
+    </button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- Logout Modal -->
+<div id="logoutModal" class="modal">
+  <div class="modal-content">
+    <h2>Logout</h2>
+    <p>Are you sure you want to log out?</p>
+    <div style="display:flex; gap:16px;">
+      <button class="modal-close" onclick="confirmLogout()">Yes</button>
+      <button class="modal-close" onclick="closeLogoutModal()">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="top-left">
+    <div class="hamburger" id="hamburger">&#9776;</div>
+    <img src="JT_LOGO.png" alt="Logo" />
+    <h1>Water Refilling Station</h1>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="body-content">
+    <div class="order-filter">
+      <button id="btnRecords" class="active"><i class="fa-solid fa-users"></i> Account Records</button>
+      <button id="btnRequests"><i class="fa-solid fa-user-plus"></i> Account Requests</button>
+    </div>
+
+<!-- Account Records -->
+<div class="table-container" id="recordsTable">
+  <table class="accounts-table">
+    <thead>
+      <tr>
+        <th>Account ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ACC001</td>
+        <td>Camille Tolentino</td>
+        <td>camille@email.com</td>
+        <td><b>Customer</b></td>
+        <td><button class="Action-btn delete">Delete</button></td>
+      </tr>
+      <tr>
+        <td>ACC002</td>
+        <td>John Cruz</td>
+        <td>john@email.com</td>
+        <td><b>Customer</b></td>
+        <td><button class="Action-btn delete">Delete</button></td>
+      </tr>
+      <tr>
+        <td>ACC003</td>
+        <td>Maria Santos</td>
+        <td>maria@email.com</td>
+        <td><b>Staff</b></td>
+        <td><button class="Action-btn delete">Delete</button></td>
+      </tr>
+      <tr>
+        <td>ACC004</td>
+        <td>Mark Reyes</td>
+        <td>mark@email.com</td>
+        <td><b>Driver</b></td>
+        <td><button class="Action-btn delete">Delete</button></td>
+      </tr>
+      <tr>
+        <td>ACC005</td>
+        <td>Ana Lopez</td>
+        <td>ana@email.com</td>
+        <td><b>Customer</b></td>
+        <td><button class="Action-btn delete">Delete</button></td>
+      </tr>
+      <tr>
+        <td>ACC006</td>
+        <td>David Tan</td>
+        <td>david@email.com</td>
+        <td><b>Staff</b></td>
+        <td><button class="Action-btn delete">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Account Requests -->
+<div class="table-container" id="requestsTable" style="display:none;">
+  <table class="accounts-table">
+    <thead>
+      <tr>
+        <th>Request ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Date Requested</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>REQ101</td>
+        <td>Paul Reyes</td>
+        <td>paul@email.com</td>
+        <td><b>Customer</b></td>
+        <td>Nov 12, 2025</td>
+        <td><button class="Action-btn accept">Accept</button></td>
+      </tr>
+      <tr>
+        <td>REQ102</td>
+        <td>Dingdong Dantes</td>
+        <td>dongs@email.com</td>
+        <td><b>Driver</b></td>
+        <td>Nov 18, 2025</td>
+        <td><button class="Action-btn accept">Accept</button></td>
+      </tr>
+      <tr>
+        <td>REQ103</td>
+        <td>Liza Soberano</td>
+        <td>liza@email.com</td>
+        <td><b>Customer</b></td>
+        <td>Nov 19, 2025</td>
+        <td><button class="Action-btn accept">Accept</button></td>
+      </tr>
+      <tr>
+        <td>REQ104</td>
+        <td>James Reid</td>
+        <td>james@email.com</td>
+        <td><b>Staff</b></td>
+        <td>Nov 20, 2025</td>
+        <td><button class="Action-btn accept">Accept</button></td>
+      </tr>
+      <tr>
+        <td>REQ105</td>
+        <td>Kathryn Bernardo</td>
+        <td>kathryn@email.com</td>
+        <td><b>Customer</b></td>
+        <td>Nov 21, 2025</td>
+        <td><button class="Action-btn accept">Accept</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+// Drawer toggle
+const drawer = document.getElementById("drawer");
+const overlay = document.getElementById("overlay");
+const hamburger = document.getElementById("hamburger");
+hamburger.addEventListener("click", () => { drawer.classList.toggle("open"); overlay.classList.toggle("show"); });
+overlay.addEventListener("click", () => { drawer.classList.remove("open"); overlay.classList.remove("show"); });
+
+// Logout Modal
+function openLogoutModal() { document.getElementById('logoutModal').style.display='flex'; }
+function closeLogoutModal() { document.getElementById('logoutModal').style.display='none'; }
+function confirmLogout() { window.location.href="login.html"; }
+window.onclick = function(event) { if(event.target===document.getElementById('logoutModal')) closeLogoutModal(); };
+
+// Navigation highlight
+function navigateTo(url, button){
+  const buttons = document.querySelectorAll(".drawer-menu button");
+  buttons.forEach(btn=>btn.classList.remove("active")); button.classList.add("active");
+  buttons.forEach(btn=>btn.disabled=true);
+  setTimeout(()=>{ window.location.href=url; },400);
+}
+
+// Toggle Records / Requests
+document.getElementById('btnRecords').onclick = () => {
+  document.getElementById('btnRecords').classList.add('active');
+  document.getElementById('btnRequests').classList.remove('active');
+  document.getElementById('recordsTable').style.display = 'block';
+  document.getElementById('requestsTable').style.display = 'none';
+};
+document.getElementById('btnRequests').onclick = () => {
+  document.getElementById('btnRequests').classList.add('active');
+  document.getElementById('btnRecords').classList.remove('active');
+  document.getElementById('recordsTable').style.display = 'none';
+  document.getElementById('requestsTable').style.display = 'block';
+};
+
+// Attach modal to existing Action buttons
+document.querySelectorAll('.Action-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const isDelete = btn.classList.contains('delete');
+    const title = isDelete ? 'Delete Account' : 'Accept Request';
+    const message = isDelete
+      ? 'Are you sure you want to delete this account?'
+      : 'Do you want to accept this account request?';
+    openActionModal(title, message, btn);
+  });
+});
+
+const actionModal = document.getElementById('actionModal');
+const actionModalTitle = document.getElementById('actionModalTitle');
+const actionModalMessage = document.getElementById('actionModalMessage');
+let currentActionBtn = null; // store the clicked button
+
+function openActionModal(title, message, btn) {
+  actionModalTitle.textContent = title;
+  actionModalMessage.textContent = message;
+  actionModal.style.display = 'flex';
+  currentActionBtn = btn;
+}
+
+function closeActionModal() {
+  actionModal.style.display = 'none';
+  currentActionBtn = null;
+}
+
+// Confirm button action
+document.getElementById('confirmActionBtn').addEventListener('click', () => {
+  if (!currentActionBtn) return;
+
+  const row = currentActionBtn.closest('tr');
+
+  // Determine action: delete or accept
+if (currentActionBtn.classList.contains('delete')) {
+  row.classList.add('fade-out-row');
+  row.addEventListener('transitionend', () => row.remove());
+} else if (currentActionBtn.classList.contains('accept')) {
+  const recordsTableBody = document.querySelector('#recordsTable tbody');
+  const clonedRow = row.cloneNode(true);
+
+  // Change button to Delete for records
+  const actionCell = clonedRow.querySelector('td:last-child');
+  actionCell.innerHTML = '<button class="Action-btn delete">Delete</button>';
+
+  // Add modal + animation to new Delete button
+  clonedRow.querySelector('.Action-btn.delete').addEventListener('click', (e) => {
+    openActionModal('Delete Account', 'Are you sure you want to delete this account?', e.target);
+  });
+
+  recordsTableBody.appendChild(clonedRow);
+
+  // Animate removal of the request row
+  row.classList.add('fade-out-row');
+  row.addEventListener('transitionend', () => row.remove());
+}
+
+  closeActionModal();
+});
+
+// Attach modal to existing Action buttons
+document.querySelectorAll('.Action-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const isDelete = btn.classList.contains('delete');
+    const title = isDelete ? 'Delete Account' : 'Accept Request';
+    const message = isDelete
+      ? 'Are you sure you want to delete this account?'
+      : 'Do you want to accept this account request?';
+    openActionModal(title, message, btn);
+  });
+});
+
+// Close modal if clicked outside
+window.onclick = function(event) {
+  if (event.target === actionModal) closeActionModal();
+};
+</script>
+<script src="sound.js"></script>
+</body>
+</html>
