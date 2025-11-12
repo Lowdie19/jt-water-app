@@ -446,6 +446,20 @@ function showSuccessPopup(message) {
     }, { once: true });
   }, 2000);
 }
+
+// Highlight Role Text
+function highlightRoles() {
+  const roleCells = document.querySelectorAll('.accounts-table td:nth-child(4) b'); // select all Role <b> tags
+  roleCells.forEach(cell => {
+    const role = cell.textContent.trim();
+    if (['Admin', 'Staff', 'Driver'].includes(role)) {
+      cell.style.color = '#00b070';
+    }
+  });
+}
+
+// Run on page load
+highlightRoles();
 </script>
 <script src="sound.js"></script>
 </body>
