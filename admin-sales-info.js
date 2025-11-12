@@ -67,56 +67,59 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Render Orders ---
-  function renderOrders(orders, selectedDate) {
-    const formattedDate = selectedDate.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
+function renderOrders(orders, selectedDate) {
+  const weekday = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+  const monthDayYear = selectedDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-    bodyContent.innerHTML = `
-      <div style="background:white;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.1);padding:32px 16px 16px 16px;margin-top:20px;position:relative;">
-        <div style="display:flex;justify-content:center;align-items:center;position:relative;transform:translateX(-25px);">
-          <h2 style="color:#005f8c;margin-bottom:16px;text-align:center;">${formattedDate}</h2>
-          <i class="fa-regular fa-calendar-days" onclick="openCalendar()" 
-            style="position:absolute;right:8px;top:2px;font-size:22px;color:#00d084;cursor:pointer;"></i>
+  bodyContent.innerHTML = `
+    <div style="background:white;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.1);padding:32px 16px 16px 16px;margin-top:20px;position:relative;">
+      <div style="display:flex;align-items:center;gap:15px;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="margin-left:30px;display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0;word-break:break-word;">
+          <span style="color:#005f8c;font-weight:bold;">${weekday}</span>
+          <span style="color:#005f8c;font-size:1.5rem;font-weight:bold;">${monthDayYear}</span>
         </div>
-        <div id="orderBar" style="display:flex;justify-content:space-between;background:#00acc1;color:white;border-radius:10px;padding:10px;font-weight:bold;text-align:center;">
-          <div style="flex:1;">Customer</div>
-          <div style="flex:1;">Order</div>
-          <div style="flex:1;">Total (₱)</div>
-        </div>
-        <div id="sampleOrders" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
-        <div id="summaryRow" style="display:flex;flex-direction:column;gap:5px;background:#005f8c;color:white;border-radius:10px;padding:10px;font-weight:bold;text-align:center;margin:8px;">
-          <div style="display:flex;justify-content:space-between;"><div>Total Sales</div><div id="totalSalesAmount">₱0</div></div>
-          <div style="display:flex;justify-content:space-between;"><div>Total Items</div><div id="totalItemsAmount">0</div></div>
-        </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:12px;">
-          <button id="saveReportBtn" style="background:#00d084;color:white;border:none;border-radius:20px;padding:6px 12px;cursor:pointer;font-weight:bold;">
-            <i class="fa-solid fa-download"></i> Save As
-          </button>
-        </div>
+        <i class="fa-regular fa-calendar-days" onclick="openCalendar()" 
+           style="margin-right:30px;font-size:25px;color:#00d084;cursor:pointer;flex:0 0 auto;"></i>
+      </div>
+
+      <div id="orderBar" style="display:flex;justify-content:space-between;background:#00acc1;color:white;border-radius:10px;padding:10px;font-weight:bold;text-align:center;">
+        <div style="flex:1;">Customer</div>
+        <div style="flex:1;">Order</div>
+        <div style="flex:1;">Total (₱)</div>
+      </div>
+
+      <div id="sampleOrders" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
+
+      <div id="summaryRow" style="display:flex;flex-direction:column;gap:5px;background:#005f8c;color:white;border-radius:10px;padding:10px;font-weight:bold;text-align:center;margin:8px;">
+        <div style="display:flex;justify-content:space-between;"><div>Total Sales</div><div id="totalSalesAmount">₱0</div></div>
+        <div style="display:flex;justify-content:space-between;"><div>Total Items</div><div id="totalItemsAmount">0</div></div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+        <button id="saveReportBtn" style="background:#00d084;color:white;border:none;border-radius:20px;padding:6px 12px;cursor:pointer;font-weight:bold;">
+          <i class="fa-solid fa-download"></i> Save As
+        </button>
+      </div>
+    </div>
+  `;
+
+  // --- Render each order ---
+  const sampleOrdersContainer = document.getElementById("sampleOrders");
+  let totalSales = 0, totalItems = 0;
+  orders.forEach((order) => {
+    sampleOrdersContainer.innerHTML += `
+      <div style="display:flex;justify-content:space-between;background:#f1f1f1;border-radius:8px;padding:8px;">
+        <div style="flex:1;text-align:center;">${order.customer}</div>
+        <div style="flex:1;text-align:center;">${order.orderQty} ${order.orderType}</div>
+        <div style="flex:1;text-align:center;color:black;font-weight:bold;">${order.total}</div>
       </div>
     `;
+    totalSales += order.total;
+    totalItems += order.orderQty;
+  });
 
-    const sampleOrdersContainer = document.getElementById("sampleOrders");
-    let totalSales = 0, totalItems = 0;
-    orders.forEach((order) => {
-      sampleOrdersContainer.innerHTML += `
-        <div style="display:flex;justify-content:space-between;background:#f1f1f1;border-radius:8px;padding:8px;">
-          <div style="flex:1;text-align:center;">${order.customer}</div>
-          <div style="flex:1;text-align:center;">${order.orderQty} ${order.orderType}</div>
-          <div style="flex:1;text-align:center;color:black;font-weight:bold;">${order.total}</div>
-        </div>
-      `;
-      totalSales += order.total;
-      totalItems += order.orderQty;
-    });
-
-    document.getElementById("totalSalesAmount").textContent = `₱${totalSales}`;
-    document.getElementById("totalItemsAmount").textContent = totalItems;
-
+  document.getElementById("totalSalesAmount").textContent = `₱${totalSales}`;
+  document.getElementById("totalItemsAmount").textContent = totalItems;
     // --- Create modal element ---
     let previewModal = document.getElementById("previewModal");
     if (!previewModal) {
