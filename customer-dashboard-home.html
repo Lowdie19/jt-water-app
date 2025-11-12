@@ -429,20 +429,17 @@ body {
   font-family: Arial, sans-serif;
   padding: 12px 14px;
   font-size: 15px;
-  cursor: pointer;
   border: 3px solid #00acc1;
   transition: 0.2s;
 }
 
-.address-item:hover {
-  background-color: #00b070;
-}
 
 .address-item.selected {
-  background-color: #00d084;
+  background: rgba(255,255,255,0.2);
   color: white;
-  border: 3px solid white;
+  border-radius: 10px;
 }
+
 
 </style>
 
@@ -537,18 +534,12 @@ body {
     <div><b>Date:</b> <span id="todayDate"></span></div>
   </div>
 
-<!-- Delivery Address List -->
-<div id="addressList" class="address-list">
-  <div class="address-item" onclick="selectAddress(this)">
+<!-- Delivery Address List (fixed to Camille) -->
+<div id="addressList" class="address-list" style="display:none;">
+  <div class="address-item selected">
     <span class="address-name"><b>Camille</b></span><br>
     <span class="address-details">Tawiran St., Brgy. Panasahan</span>
   </div>
-
-  <div class="address-item" onclick="selectAddress(this)">
-    <span class="address-name"><b>Bea</b></span><br>
-    <span class="address-details">Mabini St., Brgy. Sto. Niño</span>
-  </div>
-
 </div>
   
   <!-- Pickup Name Input -->
@@ -654,12 +645,15 @@ function setOrderType(type) {
     if (pickupInfo) pickupInfo.style.display = "block";
     if (addressList) addressList.style.display = "none";
     if (pickupNameWrapper) pickupNameWrapper.style.display = "block";
-  } else {
+  } else { // Deliver
     if (deliverBtn) deliverBtn.classList.add("active");
     if (pickupBtn) pickupBtn.classList.remove("active");
     if (pickupInfo) pickupInfo.style.display = "none";
     if (addressList) addressList.style.display = "flex";
     if (pickupNameWrapper) pickupNameWrapper.style.display = "none";
+
+    // auto-select Camille and disable other clicks
+    selectedAddressValue = "Camille - Tawiran St., Brgy. Panasahan";
   }
 }
 
@@ -729,7 +723,7 @@ function placeOrder() {
   let addressText = "";
   if (orderType === "pickup") {
     customerName = document.getElementById("pickupName").value.trim();
-    addressText = "386 Sampaguita St., Brgy. Pansahan";
+    addressText = "JT water refilling station, 386 Sampaguita St., Brgy. Pansahan";
   } else {
     // selectedAddressValue is like "Name - Address" per your data-value
     const parts = selectedAddressValue.split(' - ');
