@@ -59,7 +59,7 @@ body { background: linear-gradient(to bottom, #b2ebf2, #81d4fa); min-height:100v
 .table-container { width:100%; overflow-x:auto; background:white; border-radius:8px; box-shadow:0 3px 8px rgba(0,0,0,0.1); margin-bottom:30px; }
 .accounts-table { width:100%; border-collapse:collapse; min-width:600px; }
 .accounts-table th, .accounts-table td { text-align:left; padding:12px 15px; border-bottom:1px solid #ddd; font-size:14px; white-space:nowrap; }
-.accounts-table th { background-color:#f5f5f5; color:#333; }
+.accounts-table th { background-color:#00acc1; color:white; }
 .accounts-table tr:hover { background-color:#f1f1f1; }
 
 /* Action Buttons */
@@ -199,10 +199,18 @@ body { background: linear-gradient(to bottom, #b2ebf2, #81d4fa); min-height:100v
         <th>Email</th>
         <th>Role</th>
         <th>Date Requested</th>
-        <th>Action</th>
+        <th style="text-align: center;">Action</th>
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td>ACC001</td>
+        <td>Gina Ballares</td>
+        <td>gina_ballares@email.com</td>
+        <td style="color:#00b070;"><b>Admin</b></td>
+        <td>Nov 12, 2025</td>
+        <td><button class="Action-btn delete">Delete</button></td>
+      </tr>
       <tr>
         <td>ACC001</td>
         <td>Camille Tolentino</td>
@@ -265,7 +273,7 @@ body { background: linear-gradient(to bottom, #b2ebf2, #81d4fa); min-height:100v
         <th>Email</th>
         <th>Role</th>
         <th>Date Requested</th>
-        <th>Action</th>
+        <th style="text-align: center;">Action</th>
       </tr>
     </thead>
     <tbody>
