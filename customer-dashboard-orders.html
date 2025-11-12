@@ -278,8 +278,9 @@ function loadOrders() {
 
     card.innerHTML = `
       <div>
-        <div><b>${order.id}</b></div>
-        <div style="font-size:16px; color:#555;">Date: ${order.date}</div>
+        <div><b>${order.id}</b></div><br>
+        <div style="font-size:16px; color:black;">Type: <b>${order.orderType}</b></div>
+        <div style="font-size:16px; color:#555;">Date: ${order.date}</div><br>
         <div>${order.items.map(i => `${i.name}: ${i.qty}`).join('<br>')}</div>
         <button class="view-receipt">View Receipt</button>
       </div>
@@ -290,6 +291,19 @@ function loadOrders() {
   });
 
   attachReceiptButtons();
+}
+
+function updateStatusColor(card) {
+  const statusEl = card.querySelector('.status');
+  const statusText = statusEl.textContent;
+
+  if (statusText === 'Pending') {
+    statusEl.style.color = 'orange'; // yellowish
+  } else if (statusText === 'Preparing') {
+    statusEl.style.color = '#00acc1'; // same blue
+  } else if (statusText === 'Completed') {
+    statusEl.style.color = 'green';
+  }
 }
 
 function attachReceiptButtons() {
@@ -348,6 +362,115 @@ window.onclick = function(event) {
 
 // ===== Initial Load =====
 loadOrders();
+
+// ===== Auto status update for new orders =====
+function updateStatusColor(card) {
+  const statusEl = card.querySelector('.status');
+  const status = statusEl.textContent.trim().toLowerCase();
+
+  if (status === 'pending') {
+    statusEl.style.color = '#ffda03'; // pending yellow-orange
+  } else if (status === 'preparing') {
+    statusEl.style.color = '#00acc1';   // preparing blue
+  } else if (status === 'completed') {
+    statusEl.style.color = '#00d084';  // completed green
+  } else {
+    statusEl.style.color = ''; // default
+  }
+}
+
+function autoUpdateStatus() {
+  const orders = Array.from(orderList.children);
+
+  orders.forEach(card => {
+    if (!card.dataset.processed) { // ensure we only process once
+      card.dataset.processed = true;
+
+      // Pending
+      card.dataset.orderStatus = 'Pending';
+      const statusEl = card.querySelector('.status');
+      statusEl.textContent = 'Pending';
+      updateStatusColor(card);
+
+      // Preparing after 3 sec
+      setTimeout(() => {
+        card.dataset.orderStatus = 'Preparing';
+        statusEl.textContent = 'Preparing';
+        updateStatusColor(card);
+      }, 3000);
+
+      // Completed after 8 sec total
+      setTimeout(() => {
+        card.dataset.orderStatus = 'Completed';
+        statusEl.textContent = 'Completed';
+        updateStatusColor(card);
+
+        // Hide/show depending on active tab
+        if (document.getElementById('btnPending').classList.contains('active')) {
+          card.style.display = 'none';
+        }
+        if (document.getElementById('btnCompleted').classList.contains('active')) {
+          card.style.display = 'flex';
+        }
+
+        // Refresh Completed tab
+        document.getElementById('btnCompleted').click();
+      }, 8000);
+    }
+  });
+}
+
+// Run autoUpdateStatus after initial load
+autoUpdateStatus();
+
+// ===== Show "No orders" message when tab is empty =====
+function checkEmptyTabs() {
+  const pendingTab = document.getElementById('btnPending').classList.contains('active');
+  const completedTab = document.getElementById('btnCompleted').classList.contains('active');
+
+  // Remove existing messages
+  Array.from(document.querySelectorAll('.no-orders')).forEach(el => el.remove());
+
+  if (pendingTab) {
+    const pendingCards = Array.from(orderList.children).filter(card => card.dataset.orderStatus === 'Pending' || card.dataset.orderStatus === 'Preparing');
+    if (pendingCards.length === 0) {
+      const msg = document.createElement('div');
+      msg.className = 'no-orders';
+      msg.style.textAlign = 'center';
+      msg.style.fontSize = '16px';
+      msg.style.color = '#555';
+      msg.style.margin = '20px 0';
+      msg.textContent = 'No pending orders';
+      orderList.appendChild(msg);
+    }
+  } else if (completedTab) {
+    const completedCards = Array.from(orderList.children).filter(card => card.dataset.orderStatus === 'Completed');
+    if (completedCards.length === 0) {
+      const msg = document.createElement('div');
+      msg.className = 'no-orders';
+      msg.style.textAlign = 'center';
+      msg.style.fontSize = '16px';
+      msg.style.color = '#555';
+      msg.style.margin = '20px 0';
+      msg.textContent = 'No completed orders';
+      orderList.appendChild(msg);
+    }
+  }
+}
+
+// Run when filters are clicked
+document.getElementById('btnPending').addEventListener('click', () => {
+  setTimeout(checkEmptyTabs, 50);
+});
+document.getElementById('btnCompleted').addEventListener('click', () => {
+  setTimeout(checkEmptyTabs, 50);
+});
+
+// Run on initial load
+checkEmptyTabs();
+
+// Run after auto status updates to refresh messages
+setInterval(checkEmptyTabs, 1000);
 </script>
 <script src="sound.js"></script>
 </body>
