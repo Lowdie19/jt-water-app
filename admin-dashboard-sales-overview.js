@@ -65,11 +65,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Dropdown ---
     const dropdown = document.createElement("select");
     dropdown.style.width = "100%";
-    dropdown.style.padding = "8px";
+    dropdown.style.padding = "5px";
     dropdown.style.borderRadius = "10px";
     dropdown.style.marginBottom = "8px";
     dropdown.style.border = "1px solid #00acc1";
-    dropdown.style.fontSize = "0.95rem";
+    dropdown.style.fontSize = "0.90em";
     dropdown.style.color = "#005f8c";
     dropdown.style.background = "#fff";
     dropdown.style.fontWeight = "600";
