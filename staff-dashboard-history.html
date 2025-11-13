@@ -290,9 +290,18 @@ function animateSelectedDate(){
 // Show All Orders animation + sound
 function animateShowAllOrders(){
   const btn = document.getElementById('showAllBtn');
-  btn.style.transform='scale(1.2)';
+  btn.style.transition = "transform 0.15s ease, box-shadow 0.15s ease";
+  btn.style.transform = 'scale(1.2)';
   playClickSound();
-  setTimeout(()=>{ btn.style.transform='scale(1)'; showAllOrders(); },150);
+
+  setTimeout(()=>{
+    // slight overshoot back
+    btn.style.transform = 'scale(1.05)';
+    setTimeout(()=>{
+      btn.style.transform = 'scale(1)';
+      showAllOrders();
+    },100);
+  },150);
 }
 
 function showAllOrders(){
