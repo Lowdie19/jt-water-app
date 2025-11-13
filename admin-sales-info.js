@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendarDays = document.getElementById("calendarDays");
   const monthSelect = document.getElementById("monthSelect");
   const yearSelect = document.getElementById("yearSelect");
-  const calendarModal = document.getElementById("calendarModal");
+  const calendarCard = document.getElementById("calendarModal");
 
   // --- Render initial calendar ---
   function renderCalendar() {
@@ -78,7 +78,7 @@ function renderOrders(orders, selectedDate) {
           <span style="color:#005f8c;font-weight:bold;">${weekday}</span>
           <span style="color:#005f8c;font-size:1.5rem;font-weight:bold;">${monthDayYear}</span>
         </div>
-        <i class="fa-regular fa-calendar-days" onclick="openCalendar()" 
+        <i class="fa-regular fa-calendar-days" 
            style="margin-right:30px;font-size:25px;color:#00d084;cursor:pointer;flex:0 0 auto;"></i>
       </div>
 
@@ -103,6 +103,43 @@ function renderOrders(orders, selectedDate) {
     </div>
   `;
 
+// --- Animate Date Title with Bounce ---
+const weekdayEl = bodyContent.querySelector("span:first-child");
+const monthDayYearEl = bodyContent.querySelector("span:nth-child(2)");
+
+// Initial style for animation
+[weekdayEl, monthDayYearEl].forEach(el => {
+  el.style.transform = "scale(1)";
+  el.style.opacity = "1";
+  el.style.display = "inline-block"; // ensure transform works
+  el.style.transition = "transform 0.1s ease, opacity 0.1s ease";
+});
+
+// "Click" animation
+
+  [weekdayEl, monthDayYearEl].forEach(el => {
+    el.style.transform = "scale(0.9)"; // press down
+    el.style.opacity = "0.7";
+  });
+
+  setTimeout(() => {
+    [weekdayEl, monthDayYearEl].forEach(el => {
+      el.style.transform = "scale(1)"; // release
+      el.style.opacity = "1";
+    });
+  }, 100); // short delay for press
+
+
+const calendarIcon = document.querySelector(".fa-calendar-days");
+if (calendarIcon) {
+  calendarIcon.addEventListener("click", () => {
+    if (typeof playClick === "function") playClick(); // play sound
+    const calendarModal = document.getElementById("calendarModal");
+    calendarModal.style.display = "flex";
+  });
+}
+
+
   // --- Render each order ---
   const sampleOrdersContainer = document.getElementById("sampleOrders");
   let totalSales = 0, totalItems = 0;
@@ -118,23 +155,26 @@ function renderOrders(orders, selectedDate) {
     totalItems += order.orderQty;
   });
 
+
+
+
   document.getElementById("totalSalesAmount").textContent = `₱${totalSales}`;
   document.getElementById("totalItemsAmount").textContent = totalItems;
-    // --- Create modal element ---
-    let previewModal = document.getElementById("previewModal");
-    if (!previewModal) {
-      previewModal = document.createElement("div");
-      previewModal.id = "previewModal";
-      previewModal.style.position = "fixed";
-      previewModal.style.top = "0";
-      previewModal.style.left = "0";
-      previewModal.style.width = "100%";
-      previewModal.style.height = "100%";
-      previewModal.style.background = "rgba(0,0,0,0.6)";
-      previewModal.style.display = "none";
-      previewModal.style.justifyContent = "center";
-      previewModal.style.alignItems = "center";
-      previewModal.innerHTML = `
+    // --- Create card element ---
+    let previewcard = document.getElementById("previewcard");
+    if (!previewcard) {
+      previewcard = document.createElement("div");
+      previewcard.id = "previewcard";
+      previewcard.style.position = "fixed";
+      previewcard.style.top = "0";
+      previewcard.style.left = "0";
+      previewcard.style.width = "100%";
+      previewcard.style.height = "100%";
+      previewcard.style.background = "rgba(0,0,0,0.6)";
+      previewcard.style.display = "none";
+      previewcard.style.justifyContent = "center";
+      previewcard.style.alignItems = "center";
+      previewcard.innerHTML = `
         <div style="background:white;border-radius:12px;max-width:400px;width:90%;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,0.3);">
           <div id="previewContainer" style="max-height:400px;overflow:auto;margin-bottom:10px;text-align:center;"></div>
           <input id="fileNameInput" type="text" placeholder="Enter file name..." style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;">
@@ -150,10 +190,10 @@ function renderOrders(orders, selectedDate) {
           </div>
         </div>
       `;
-      document.body.appendChild(previewModal);
+      document.body.appendChild(previewcard);
     }
 
-    // Save button functionality → show preview modal
+    // Save button functionality → show preview card
 // --- Save button functionality ---
 document.getElementById("saveReportBtn").addEventListener("click", () => {
   const card = document.getElementById("bodyContent");
@@ -162,8 +202,19 @@ document.getElementById("saveReportBtn").addEventListener("click", () => {
   // Hide original save button and calendar icon in preview
   const saveBtn = clone.querySelector("#saveReportBtn");
   const calendarIcon = clone.querySelector(".fa-calendar-days");
+if (calendarIcon) {
+  calendarIcon.addEventListener("click", () => {
+    if (typeof playClick === "function") playClick(); // universal click sound
+    // Open actual calendar modal
+    const calendarModal = document.getElementById("calendarModal");
+calendarModal.style.display = "flex";
+  });
+}
+
   if (saveBtn) saveBtn.style.display = "none";
   if (calendarIcon) calendarIcon.style.display = "none";
+  
+ 
 
   // --- Create dim overlay ---
   let dimOverlay = document.getElementById("dimOverlay");
@@ -182,12 +233,12 @@ document.getElementById("saveReportBtn").addEventListener("click", () => {
   }
   dimOverlay.style.display = "block";
 
-  // --- Bottom modal ---
-  let bottomModal = document.getElementById("bottomSaveModal");
-  if (!bottomModal) {
-    bottomModal = document.createElement("div");
-    bottomModal.id = "bottomSaveModal";
-    Object.assign(bottomModal.style, {
+  // --- Bottom card ---
+  let bottomcard = document.getElementById("bottomSavecard");
+  if (!bottomcard) {
+    bottomcard = document.createElement("div");
+    bottomcard.id = "bottomSavecard";
+    Object.assign(bottomcard.style, {
       position: "fixed",
       top: "50%",
       left: "50%",
@@ -204,40 +255,40 @@ document.getElementById("saveReportBtn").addEventListener("click", () => {
       zIndex: "1001"
     });
 
-    bottomModal.innerHTML = `
-      <div id="modalPreviewContainer" style="max-height:300px; overflow:auto; margin-bottom:10px;"></div>
-      <input id="modalFileName" type="text" placeholder="Enter file name..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:16px;">
+    bottomcard.innerHTML = `
+      <div id="cardPreviewContainer" style="max-height:300px; overflow:auto; margin-bottom:10px;"></div>
+      <input id="cardFileName" type="text" placeholder="Enter file name..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <select id="modalFileType" style="padding:6px;border:1px solid #ccc;border-radius:6px;font-size:16px;">
+        <select id="cardFileType" style="padding:6px;border:1px solid #ccc;border-radius:6px;font-size:16px;">
           <option value="jpg">JPG</option>
           <option value="pdf">PDF</option>
         </select>
         <div>
-          <button id="modalConfirmSave" style="background:#00d084;color:white;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:16px;font-weight:bold;">Save</button>
-          <button id="modalCancel" style="margin-left:8px;background:#ccc;color:black;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:16px;font-weight:bold;">Cancel</button>
+          <button id="cardConfirmSave" style="background:#00d084;color:white;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:16px;font-weight:bold;">Save</button>
+          <button id="cardCancel" style="margin-left:8px;background:#ccc;color:black;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:16px;font-weight:bold;">Cancel</button>
         </div>
       </div>
     `;
-    document.body.appendChild(bottomModal);
+    document.body.appendChild(bottomcard);
   }
 
-  // Add cloned card to modal preview
-  const previewContainer = document.getElementById("modalPreviewContainer");
+  // Add cloned card to card preview
+  const previewContainer = document.getElementById("cardPreviewContainer");
   previewContainer.innerHTML = "";
   previewContainer.appendChild(clone);
 
-  bottomModal.style.display = "flex";
+  bottomcard.style.display = "flex";
 
   // Cancel button
-  document.getElementById("modalCancel").onclick = () => {
-    bottomModal.style.display = "none";
+  document.getElementById("cardCancel").onclick = () => {
+    bottomcard.style.display = "none";
     dimOverlay.style.display = "none";
   };
 
   // Confirm Save
-  document.getElementById("modalConfirmSave").onclick = () => {
-    const fileName = document.getElementById("modalFileName").value || "Sales_Report";
-    const fileType = document.getElementById("modalFileType").value;
+  document.getElementById("cardConfirmSave").onclick = () => {
+    const fileName = document.getElementById("cardFileName").value || "Sales_Report";
+    const fileType = document.getElementById("cardFileType").value;
 
     html2canvas(clone, { scale: 2, useCORS: true }).then((canvas) => {
       if (fileType === "jpg") {
@@ -253,6 +304,8 @@ document.getElementById("saveReportBtn").addEventListener("click", () => {
         pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
         pdf.save(`${fileName}.pdf`);
       }
+
+playSuccess();
 
       // Popup "Saved to device"
       const popup = document.createElement("div");
@@ -278,7 +331,7 @@ document.getElementById("saveReportBtn").addEventListener("click", () => {
         setTimeout(()=>{ popup.remove(); }, 300);
       }, 1500);
 
-      bottomModal.style.display = "none";
+      bottomcard.style.display = "none";
       dimOverlay.style.display = "none";
     });
   };
@@ -290,18 +343,43 @@ document.getElementById("saveReportBtn").addEventListener("click", () => {
   renderOrders(generateRandomOrders(), today);
 
   // --- Calendar Click ---
-  calendarDays.addEventListener("click", (e) => {
-    if (e.target.tagName === "DIV") {
-      const day = parseInt(e.target.textContent);
-      const month = parseInt(monthSelect.value);
-      const year = parseInt(yearSelect.value);
-      const selectedDate = new Date(year, month, day);
-      renderOrders(generateRandomOrders(), selectedDate);
-      calendarModal.style.display = "none";
-    }
-  });
+calendarDays.addEventListener("click", (e) => {
+  if (e.target.tagName === "DIV") {
+    if (typeof playClick === "function") playClick(); // play click sound
+
+    const day = parseInt(e.target.textContent);
+    const month = parseInt(monthSelect.value);
+    const year = parseInt(yearSelect.value);
+    const selectedDate = new Date(year, month, day);
+
+    // --- Animate the selected date ---
+    // Remove animation from previously selected
+    calendarDays.querySelectorAll("div").forEach(div => {
+      div.style.background = "";
+      div.style.transform = "scale(1)";
+      div.style.transition = "0.2s";
+    });
+
+    // Apply animation to clicked day
+    e.target.style.background = "#00d084"; // highlight
+    e.target.style.transform = "scale(1.2)";
+    e.target.style.transition = "0.2s";
+
+    // Optional: revert scale after 0.2s for a "pop" effect
+    setTimeout(() => {
+      e.target.style.transform = "scale(1)";
+    }, 200);
+
+    // Render orders for the selected date
+    renderOrders(generateRandomOrders(), selectedDate);
+
+    // Close calendar modal
+    setTimeout(() => {
+    calendarCard.style.display = "none";
+  }, 300);}
+});
 
   // --- Open / Close Calendar ---
-  window.openCalendar = () => (calendarModal.style.display = "flex");
-  window.closeCalendar = () => (calendarModal.style.display = "none");
+window.openCalendar = () => (calendarCard.style.display = "flex");
+window.closeCalendar = () => (calendarCard.style.display = "none");
 });
