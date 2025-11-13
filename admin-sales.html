@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
-  body { background: linear-gradient(to bottom, #b2ebf2, #81d4fa); min-height:100vh; overflow-x:hidden; padding-top: 50px; }
+  body { background: linear-gradient(to bottom, #b2ebf2, #81d4fa); min-height:100vh; overflow-x:hidden;}
   @media(min-width:1024px){ body{ padding:0 30vw; } }
 
   /* Top Bar */
@@ -54,7 +54,7 @@
   .search-bar button { background:#00acc1; border:none; border-radius:50%; padding:10px; color:white; font-size:16px; cursor:pointer; transition:0.2s; }
   .search-bar button:hover { background:#005f8c; }
 
-  .body-content { margin-top:16px; margin-bottom:250px; padding:0 16px; display:flex; flex-direction:column; gap:16px; }
+  .body-content { margin-top:100px; padding:0 16px; display:flex; flex-direction:column; gap:16px; }
 
   .month-divider { font-weight:bold; color:#005f8c; padding:8px 0; border-top:1px dashed #005f8c; margin-top:12px; }
 
@@ -62,7 +62,7 @@
   .history-card:hover { transform: scale(1.02); }
   .history-info b { color:#00acc1; }
 
-  .calendar-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:20; }
+  .calendar-card { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1001; }
   .calendar-content { background:white; border-radius:15px; width:90%; max-width:340px; padding:30px 20px 20px 20px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.25); }
   .calendar-content h3 { margin-top:0; color:#00acc1; font-size: 1.5em;}
   .calendar-selectors { display:flex; justify-content:center; gap:15px; margin-bottom:15px;}
@@ -70,6 +70,7 @@
   .calendar-days { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-top:10px; }
   .calendar-days div { padding:8px 0; border-radius:50%; cursor:pointer; transition:0.2s; font-weight:bold; }
   .calendar-days div:hover { background:#00b070; color:white; }
+  .calendar-days div:active { transform: scale(0.95); transition: transform 0.1s;}
   .close-btn { margin-top:12px; padding:8px 16px; border:none; border-radius:16px; background:#ccc; cursor:pointer; font-size:16px; color: white; }
   .close-btn:hover { background:#aaa; }
 
@@ -163,7 +164,7 @@
 <div class="body-content" id="bodyContent"></div>
 
 <!-- Calendar Modal -->
-<div class="calendar-modal" id="calendarModal">
+<div class="calendar-card" id="calendarModal">
   <div class="calendar-content">
     <h3>Select Date</h3><br>
     <div class="calendar-selectors">
