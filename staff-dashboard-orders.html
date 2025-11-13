@@ -105,7 +105,7 @@
       padding: 15px;
       text-align: center;
       color: #00acc1;
-      font-weight: 600;
+      font-weight: bold;
       cursor: pointer;
       transition: transform 0.2s ease;
     }
@@ -164,6 +164,7 @@
     }
 
     .modal-content {
+      font-size: 16px;
       background: #fff;
       border-radius: 15px;
       width: 85%;
@@ -174,7 +175,7 @@
       animation: fadeIn 0.4s ease;
     }
 
-    .modal-content h3 { color: #00acc1; margin-bottom: 10px; }
+    .modal-content h3 { color: #00acc1; margin-bottom: 20px; font-size: 25px; }
     .modal-content input {
       width: 80%;
       margin: 8px 0;
@@ -186,17 +187,16 @@
     }
 
     .modal-content button {
-      width: 56%;
-      padding: 10px;
       border-radius: 25px;
       border: none;
       margin-top: 10px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: bold;
     }
 
     .modal-content button:first-of-type { background: #00acc1; color: white; }
-    .close-btn { background: #ccc; color: white; }
+    .close-btn { font-size: 16px; min-width: 120px; padding: 8px 20px; background: #ccc; color: white;}
+    .Add-btn { font-size: 16px; min-width: 120px; padding: 8px 20px; background: #ccc; color: white; margin-right: 10px;}
     .close-btn:hover { background: #aaa; }
 
     @keyframes fadeIn {
@@ -478,7 +478,7 @@
     </div>
 
 
-    <button onclick="addOrder()">Add Order</button>
+    <button class="Add-btn" onclick="addOrder()">Add Order</button>
     <button class="close-btn" onclick="closeAddOrder()">Cancel</button>
   </div>
 </div>
