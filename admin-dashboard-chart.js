@@ -48,18 +48,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   chartContainer.style.position = "relative";
   chartContainer.style.paddingBottom = "40px";
+chartContainer.style.overflow = "hidden";
+chartContainer.style.boxSizing = "border-box";
+chartContainer.style.padding = "20px";
 
   // Header + buttons wrapper
   const btnContainer = document.createElement("div");
   btnContainer.style.display = "flex";
   btnContainer.style.gap = "8px";
   btnContainer.style.alignItems = "center";
+btnContainer.style.flexWrap = "wrap";
+btnContainer.style.justifyContent = "flex-end";
+btnContainer.style.maxWidth = "90%";
+btnContainer.style.overflow = "hidden";
 
   const headerWrapper = document.createElement("div");
   headerWrapper.style.display = "flex";
   headerWrapper.style.justifyContent = "space-between";
   headerWrapper.style.alignItems = "center";
-  headerWrapper.style.marginBottom = "10px";
+  headerWrapper.style.marginBottom = "20px";
   headerWrapper.appendChild(title);
   headerWrapper.appendChild(btnContainer);
   chartContainer.insertBefore(headerWrapper, canvas);
@@ -84,20 +91,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // Next button
   const nextBtn = document.createElement("button");
   nextBtn.textContent = "›";
+  nextBtn.style.position = "absolute";
+  nextBtn.style.right = "15px";
+  nextBtn.style.bottom = "15px"; // inside chart card
+  nextBtn.style.zIndex = "2"; // above chart, not blocking
   nextBtn.style.border = "none";
   nextBtn.style.borderRadius = "50%";
-  nextBtn.style.padding = "6px 12px";
-  nextBtn.style.fontSize = "1.2rem";
+  nextBtn.style.padding = "8px 14px";
+  nextBtn.style.fontSize = "1.3rem";
   nextBtn.style.cursor = "pointer";
   nextBtn.style.color = "white";
   nextBtn.style.background = "#00acc1";
   nextBtn.style.fontWeight = "bold";
   nextBtn.style.display = "block";
-  nextBtn.style.transition = "0.2s";
-  nextBtn.style.position = "absolute";
-  nextBtn.style.bottom = "10px";
-  nextBtn.style.right = "16px";
-  nextBtn.style.zIndex = "10";
+  nextBtn.style.transition = "0.2s ease";
+  nextBtn.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.2))";
+  nextBtn.style.pointerEvents = "auto";
+
+  // ensure the container allows absolutely positioned elements
+  chartContainer.style.position = "relative";
+  chartContainer.style.paddingBottom = "70px"; // space for button
 
   let showingSecondHalf = false;
 
