@@ -311,11 +311,16 @@ function attachReceiptButtons() {
     btn.onclick = (e) => {
       const orderCard = e.target.closest('.order-card');
       const orderId = orderCard.dataset.orderId;
+
+      // Read status directly from the card, so it's always current
+      const currentStatus = orderCard.querySelector('.status').textContent;
+
+      // Get order details from localStorage
       const order = JSON.parse(localStorage.getItem('orders') || '[]')
                      .find(o => o.id === orderId);
-      
-      document.getElementById('receiptStatus').innerHTML = `Status: <b>${order.status || 'Preparing'}</b>`;
-      
+
+      document.getElementById('receiptStatus').innerHTML = `Status: <b>${currentStatus}</b>`;
+
       receiptDetails.innerHTML = `
         <div>
           <div><b>Order ID:</b> ${order.id}</div>
