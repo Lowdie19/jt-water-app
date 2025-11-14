@@ -711,6 +711,44 @@ function chooseAction(btn, accepted) {
 
 // Initial summary calculation on page load
 updateSummary();
+
+
+  /////// Reuse the same showPopup function from login.html or define it here
+  function showPopup(message, color = "#00d084") {
+    const popup = document.createElement("div");
+    popup.textContent = message;
+    popup.style.position = "fixed";
+    popup.style.left = "50%";
+    popup.style.bottom = "10%";
+    popup.style.transform = "translateX(-50%)";
+    popup.style.background = color;
+    popup.style.color = "white";
+    popup.style.padding = "8px 18px";
+    popup.style.borderRadius = "6px";
+    popup.style.fontSize = "14px";
+    popup.style.fontWeight = "bold";
+    popup.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
+    popup.style.zIndex = "9999";
+    popup.style.opacity = "0";
+    popup.style.transition = "opacity 0.3s ease";
+
+    document.body.appendChild(popup);
+
+    setTimeout(() => (popup.style.opacity = "1"), 100);
+    setTimeout(() => {
+      popup.style.opacity = "0";
+      setTimeout(() => popup.remove(), 2000);
+    }, 2000);
+  }
+// Read display name from URL
+const params = new URLSearchParams(window.location.search);
+const user = params.get("user") || "";
+
+// Show welcome message if exists
+if (user) {
+  showPopup(`Welcome ${user}!`, "#00d084");
+}
+
 </script>
 <script src="sound.js"></script>
 </body>
