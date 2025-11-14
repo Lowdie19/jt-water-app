@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading...</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(to bottom, #b2ebf2, #81d4fa);
+      overflow: hidden;
+      opacity: 0; /* start transparent */
+      transition: opacity 0.5s ease;
+    }
+
+    .logo img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      animation: hyperBounce 1s infinite;
+      opacity: 0;
+      animation: hyperBounce 1s infinite, fadeInLogo 1s forwards;
+    }
+
+    @keyframes hyperBounce {
+      0%   { transform: translateY(0) scale(1); }
+      10%  { transform: translateY(-20px) scale(1.05); }
+      20%  { transform: translateY(0) scale(1); }
+      30%  { transform: translateY(-15px) scale(1.03); }
+      40%  { transform: translateY(0) scale(1); }
+      50%  { transform: translateY(-10px) scale(1.02); }
+      60%  { transform: translateY(0) scale(1); }
+      70%  { transform: translateY(-5px) scale(1.01); }
+      80%  { transform: translateY(0) scale(1); }
+      90%  { transform: translateY(-3px) scale(1.005); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeInLogo {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .popup-msg {
+      position: fixed;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00d084;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .popup-msg.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <img src="JT_LOGO.png" alt="JT Logo" />
+  </div>
+
+<script>
+  // Fade in page
+  window.onload = () => {
+    document.body.style.opacity = "1";
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const nextPage = params.get("next") || "customer-dashboard-home.html";
+  const user = params.get("user") || "";
+
+  function showPopup(message, color = "#00d084") {
+    const popup = document.createElement("div");
+    popup.className = "popup-msg";
+    popup.textContent = message;
+    popup.style.background = color;
+    document.body.appendChild(popup);
+
+    setTimeout(() => popup.classList.add("show"), 100);
+    setTimeout(() => {
+      popup.classList.remove("show");
+      setTimeout(() => popup.remove(), 400);
+    }, 2000);
+  }
+
+  if (user) {
+    showPopup(`Welcome ${user}!`, "#00d084");
+  }
+
+  // Redirect with fade-out
+  setTimeout(() => {
+    document.body.style.opacity = "0"; // fade out page
+    setTimeout(() => {
+      window.location.href = nextPage;
+    }, 500); // match transition
+  }, 1500);
+</script>
+
+</body>
+</html>
