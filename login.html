@@ -250,7 +250,6 @@ function showPopup(message, color = "#e74c3c") {
   card.style.position = "relative";
   card.appendChild(popup);
 
-  // ✅ Play success sound on every popup
   if (typeof playSuccess === "function") playSuccess();
 
   setTimeout(() => (popup.style.opacity = "1"), 100);
@@ -260,63 +259,68 @@ function showPopup(message, color = "#e74c3c") {
   }, 2000);
 }
 
-  function login() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const btn = document.querySelector("button");
+function login() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const btn = document.querySelector("button");
 
-    if (!username || !password) {
-      showPopup("Please enter both fields.", "#f1c40f");
-      return;
-    }
-
-    btn.innerText = "Logging in...";
-    btn.style.background = "#26c6da";
-    btn.disabled = true;
-
-    setTimeout(() => {
-      if (username === "Admin" && password === "1234") {
-        showPopup("Welcome Admin!", "#00d084");
-        setTimeout(() => (window.location.href = "admin-dashboard.html"), 1000);
-      } 
-      else if (username === "Camille" && password === "1234") {
-        showPopup("Welcome Camille!", "#00d084");
-        setTimeout(() => (window.location.href = "customer-dashboard-home.html"), 1000);
-      } 
-      else if (username === "Staff" && password === "1234") {
-        showPopup("Welcome Ellaine!", "#00d084");
-        setTimeout(() => (window.location.href = "staff-dashboard-orders.html"), 1000);
-      } 
-      else if (username === "Driver" && password === "1234") {
-        showPopup("Welcome Dingdong!", "#00d084");
-        setTimeout(() => (window.location.href = "driver-dashboard-orders.html"), 1000);
-      } 
-      else {
-        showPopup("Invalid username or password.", "#e74c3c");
-        btn.innerText = "Login";
-        btn.style.background = "#00acc1";
-        btn.disabled = false;
-      }
-    }, 1500);
+  if (!username || !password) {
+    showPopup("Please enter both fields.", "#f1c40f");
+    return;
   }
 
-  function forgotPassword() {
-    document.getElementById("forgotModal").style.display = "flex";
+  btn.innerText = "Logging in...";
+  btn.style.background = "#26c6da";
+  btn.disabled = true;
+
+setTimeout(() => {
+  let nextPage = "";
+  let displayName = ""; // Only the name for welcome popup
+
+  if (username === "Admin" && password === "1234") {
+    nextPage = "admin-dashboard.html";
+    displayName = "Gina Ballares";
+  } else if (username === "Customer" && password === "1234") {
+    nextPage = "customer-dashboard-home.html";
+    displayName = "Camille Tolentino";
+  } else if (username === "Staff" && password === "1234") {
+    nextPage = "staff-dashboard-orders.html";
+    displayName = "Ellaine Pangilinan";
+  } else if (username === "Driver" && password === "1234") {
+    nextPage = "driver-dashboard-orders.html";
+    displayName = "Dingdong Dantes";
+  } else {
+    showPopup("Invalid username or password.", "#e74c3c");
+    btn.innerText = "Login";
+    btn.style.background = "#00acc1";
+    btn.disabled = false;
+    return;
   }
 
-  function closeForgot() {
-    document.getElementById("forgotModal").style.display = "none";
-  }
+  // Redirect to loading page with name only
+  window.location.href = `loading.html?next=${nextPage}&user=${encodeURIComponent(displayName)}`;
+}, 600);
+}
 
-  function sendReset() {
-    const input = document.getElementById("resetInput").value.trim();
-    if (input === "") {
-      showPopup("Please enter your email or username.", "#f1c40f");
-      return;
-    }
-    showPopup("Password reset link has been sent!", "#00d084");
-    closeForgot();
+// Forgot Password Functions (move OUTSIDE login)
+function forgotPassword() {
+  document.getElementById("forgotModal").style.display = "flex";
+}
+
+function closeForgot() {
+  document.getElementById("forgotModal").style.display = "none";
+}
+
+function sendReset() {
+  const input = document.getElementById("resetInput").value.trim();
+  if (input === "") {
+    showPopup("Please enter your email or username.", "#f1c40f");
+    return;
   }
+  showPopup("Password reset link has been sent!", "#00d084");
+  closeForgot();
+}
+
 </script>
 <script src="sound.js"></script>
 </body>
